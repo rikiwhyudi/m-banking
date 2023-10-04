@@ -6,15 +6,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type customerRepositoryImpl struct {
-	db *gorm.DB
-}
-
 func NewRepositoryCustomerImpl(db *gorm.DB) CustomerRepository {
-	return &customerRepositoryImpl{db}
+	return &repository{db}
 }
 
-func (r *customerRepositoryImpl) RegisterCustomerRepository(customer models.Customer, accountNumber models.AccountNumber) (models.Customer, error) {
+func (r *repository) RegisterCustomerRepository(customer models.Customer, accountNumber models.AccountNumber) (models.Customer, error) {
 	var err error
 
 	// start db transaction

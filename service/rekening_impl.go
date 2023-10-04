@@ -14,17 +14,17 @@ import (
 )
 
 type accountNumberServiceImpl struct {
-	accountNumberRepositoryImpl repositories.AccountNumberRepository
-	transactionRepositoryImpl   repositories.TransactionRepository
+	accountNumberRepository repositories.AccountNumberRepository
+	transactionRepository   repositories.TransactionRepository
 }
 
-func NewServiceAccountNumberImpl(accountNumberRepositoryImpl repositories.AccountNumberRepository, transactionRepositoryImpl repositories.TransactionRepository) AccountNumberService {
-	return &accountNumberServiceImpl{accountNumberRepositoryImpl, transactionRepositoryImpl}
+func NewServiceAccountNumberImpl(accountNumberRepository repositories.AccountNumberRepository, transactionRepository repositories.TransactionRepository) AccountNumberService {
+	return &accountNumberServiceImpl{accountNumberRepository, transactionRepository}
 }
 
 func (s *accountNumberServiceImpl) GetBalanceService(accountNumber int) (*accNumberdto.AccountNumberResponse, error) {
 
-	data, err := s.accountNumberRepositoryImpl.GetBalanceRepository(accountNumber)
+	data, err := s.accountNumberRepository.GetBalanceRepository(accountNumber)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (s *accountNumberServiceImpl) DepositService(account accNumberdto.AccountNu
 
 	defer ch.Close()
 
-	deposit, err := s.accountNumberRepositoryImpl.GetBalanceRepository(account.AccountNumber)
+	deposit, err := s.accountNumberRepository.GetBalanceRepository(account.AccountNumber)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (s *accountNumberServiceImpl) DepositService(account accNumberdto.AccountNu
 
 	// update balance
 	deposit.Balance += account.Amount
-	data, err := s.accountNumberRepositoryImpl.DepositRepository(deposit)
+	data, err := s.accountNumberRepository.DepositRepository(deposit)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (s *accountNumberServiceImpl) CashoutService(account accNumberdto.AccountNu
 
 	defer ch.Close()
 
-	cashout, err := s.accountNumberRepositoryImpl.GetBalanceRepository(account.AccountNumber)
+	cashout, err := s.accountNumberRepository.GetBalanceRepository(account.AccountNumber)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (s *accountNumberServiceImpl) CashoutService(account accNumberdto.AccountNu
 	// update balance
 	cashout.Balance -= account.Amount
 
-	data, err := s.accountNumberRepositoryImpl.CashoutRepository(cashout)
+	data, err := s.accountNumberRepository.CashoutRepository(cashout)
 
 	if err != nil {
 		return nil, err
@@ -237,7 +237,7 @@ func (s *accountNumberServiceImpl) consumeMessage(ch *amqp.Channel, queueName st
 				Date:            mutasi.Date,
 			}
 
-			if _, err := s.transactionRepositoryImpl.CreateTransactionReposity(transaction); err != nil {
+			if _, err := s.transactionRepository.CreateTransactionReposity(transaction); err != nil {
 				fmt.Printf("failed save mutation to database: %s\n", err)
 				return
 			}

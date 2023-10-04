@@ -19,7 +19,7 @@ func GetRabbitMQChannel() (*amqp.Channel, error) {
 
 	if rabbitMQConnection == nil {
 
-		// create a new RabbitMQ connection if not exist
+		// create a new RabbitMQ connection if it doesnt exist
 		dsn := fmt.Sprintf("amqp://%s:%s@%s:%s/", RABBITMQ_USERNAME, RABBITMQ_PASSWORD, RABBITMQ_HOST, RABBITMQ_PORT)
 		rabbitMQConnection, err = amqp.Dial(dsn)
 		if err != nil {

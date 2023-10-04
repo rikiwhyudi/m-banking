@@ -13,15 +13,13 @@ var DB *gorm.DB
 func DatabaseInit() {
 	var err error
 
-	DB_HOST := os.Getenv("POSTGRES_HOST")
-	DB_PORT := os.Getenv("POSTGRES_PORT")
-	DB_USER := os.Getenv("POSTGRES_USER")
-	DB_PASSWORD := os.Getenv("POSTGRES_PASSWORD")
-	DB_NAME := os.Getenv("POSTGRES_DB")
+	POSTGRES_HOST := os.Getenv("POSTGRES_HOST")
+	POSTGRES_PORT := os.Getenv("POSTGRES_PORT")
+	POSTGRES_USER := os.Getenv("POSTGRES_USER")
+	POSTGRES_PASSWORD := os.Getenv("POSTGRES_PASSWORD")
+	POSTGRES_DB := os.Getenv("POSTGRES_DB")
 
-	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", DB_HOST, DB_PORT, DB_USER, DB_NAME, DB_PASSWORD)
-
-	fmt.Println(dsn)
+	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_DB, POSTGRES_PASSWORD)
 
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
