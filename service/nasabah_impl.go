@@ -8,11 +8,11 @@ import (
 )
 
 type customerServiceImpl struct {
-	customerRepositoryImpl repositories.CustomerRepository
+	customerRepository repositories.CustomerRepository
 }
 
-func NewServiceCustomerImpl(customerRepositoryImpl repositories.CustomerRepository) CustomerService {
-	return &customerServiceImpl{customerRepositoryImpl}
+func NewServiceCustomerImpl(customerRepository repositories.CustomerRepository) CustomerService {
+	return &customerServiceImpl{customerRepository}
 }
 
 func (s *customerServiceImpl) RegisterCustomerService(customer customerdto.CustomerRequest) (*customerdto.CustomerResponse, error) {
@@ -30,7 +30,7 @@ func (s *customerServiceImpl) RegisterCustomerService(customer customerdto.Custo
 		Balance:       0,
 	}
 
-	data, err := s.customerRepositoryImpl.RegisterCustomerRepository(createCustomer, createAccountNumber)
+	data, err := s.customerRepository.RegisterCustomerRepository(createCustomer, createAccountNumber)
 
 	if err != nil {
 		return nil, err

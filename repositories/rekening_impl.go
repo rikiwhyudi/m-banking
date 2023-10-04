@@ -6,15 +6,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type accountNumberRepositoryImpl struct {
-	db *gorm.DB
-}
-
 func NewRepositoryAccountNumberImpl(db *gorm.DB) AccountNumberRepository {
-	return &accountNumberRepositoryImpl{db}
+	return &repository{db}
 }
 
-func (r *accountNumberRepositoryImpl) GetBalanceRepository(accountNumber int) (models.AccountNumber, error) {
+func (r *repository) GetBalanceRepository(accountNumber int) (models.AccountNumber, error) {
 	var err error
 	var account models.AccountNumber
 
@@ -38,7 +34,7 @@ func (r *accountNumberRepositoryImpl) GetBalanceRepository(accountNumber int) (m
 	return account, err
 }
 
-func (r *accountNumberRepositoryImpl) DepositRepository(deposit models.AccountNumber) (models.AccountNumber, error) {
+func (r *repository) DepositRepository(deposit models.AccountNumber) (models.AccountNumber, error) {
 	var err error
 
 	// start db transaction
@@ -63,7 +59,7 @@ func (r *accountNumberRepositoryImpl) DepositRepository(deposit models.AccountNu
 	return deposit, err
 }
 
-func (r *accountNumberRepositoryImpl) CashoutRepository(cashout models.AccountNumber) (models.AccountNumber, error) {
+func (r *repository) CashoutRepository(cashout models.AccountNumber) (models.AccountNumber, error) {
 	var err error
 
 	tx := r.db.Begin()

@@ -6,15 +6,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type transactionRepositoryImpl struct {
-	db *gorm.DB
-}
-
 func NewRepositoryTransactionImpl(db *gorm.DB) TransactionRepository {
-	return &transactionRepositoryImpl{db}
+	return &repository{db}
 }
 
-func (r *transactionRepositoryImpl) GetTransactionRepository(accountNumber int) ([]models.Transaction, error) {
+func (r *repository) GetTransactionRepository(accountNumber int) ([]models.Transaction, error) {
 	var err error
 	var transactions []models.Transaction
 
@@ -47,7 +43,7 @@ func (r *transactionRepositoryImpl) GetTransactionRepository(accountNumber int) 
 	return transactions, err
 }
 
-func (r *transactionRepositoryImpl) CreateTransactionReposity(transaction models.Transaction) (models.Transaction, error) {
+func (r *repository) CreateTransactionReposity(transaction models.Transaction) (models.Transaction, error) {
 	var err error
 
 	tx := r.db.Begin()

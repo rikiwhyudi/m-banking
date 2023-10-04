@@ -6,16 +6,16 @@ import (
 )
 
 type transactionServiceImpl struct {
-	transactionRepositoryImpl repositories.TransactionRepository
+	transactionRepository repositories.TransactionRepository
 }
 
-func NewServiceTransactionImpl(transactionRepositoryImpl repositories.TransactionRepository) TransactionService {
-	return &transactionServiceImpl{transactionRepositoryImpl}
+func NewServiceTransactionImpl(transactionRepository repositories.TransactionRepository) TransactionService {
+	return &transactionServiceImpl{transactionRepository}
 }
 
 func (s *transactionServiceImpl) GetTransactionService(accountNumber int) ([]models.Transaction, error) {
 
-	response, err := s.transactionRepositoryImpl.GetTransactionRepository(accountNumber)
+	response, err := s.transactionRepository.GetTransactionRepository(accountNumber)
 	if err != nil {
 		return nil, err
 	}
