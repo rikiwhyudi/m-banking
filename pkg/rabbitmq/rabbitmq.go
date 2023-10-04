@@ -14,8 +14,8 @@ func GetRabbitMQChannel() (*amqp.Channel, error) {
 
 	RABBITMQ_HOST := os.Getenv("RABBITMQ_HOST")
 	RABBITMQ_PORT := os.Getenv("RABBITMQ_PORT")
-	RABBITMQ_USERNAME := os.Getenv("RABBITMQ_USERNAME")
-	RABBITMQ_PASSWORD := os.Getenv("RABBITMQ_PASSWORD")
+	RABBITMQ_USERNAME := os.Getenv("RABBITMQ_DEFAULT_USER")
+	RABBITMQ_PASSWORD := os.Getenv("RABBITMQ_DEFAULT_PASS")
 
 	if rabbitMQConnection == nil {
 
