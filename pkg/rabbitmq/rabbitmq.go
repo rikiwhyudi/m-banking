@@ -14,14 +14,14 @@ func GetRabbitMQChannel() (*amqp.Channel, error) {
 
 	RABBITMQ_HOST := os.Getenv("RABBITMQ_HOST")
 	RABBITMQ_PORT := os.Getenv("RABBITMQ_PORT")
+	RABBITMQ_DEFAULT_USER := os.Getenv("RABBITMQ_DEFAULT_USER")
+	RABBITMQ_DEFAULT_PASS := os.Getenv("RABBITMQ_DEFAULT_PASS")
 	RABBITMQ_DEFAULT_VHOST := os.Getenv("RABBITMQ_DEFAULT_VHOST")
-	RABBITMQ_USERNAME := os.Getenv("RABBITMQ_DEFAULT_USER")
-	RABBITMQ_PASSWORD := os.Getenv("RABBITMQ_DEFAULT_PASS")
 
 	if rabbitMQConnection == nil {
 
 		// create a new RabbitMQ connection if it doesnt exist
-		dsn := fmt.Sprintf("amqp://%s:%s@%s:%s/%s", RABBITMQ_USERNAME, RABBITMQ_PASSWORD, RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_DEFAULT_VHOST)
+		dsn := fmt.Sprintf("amqp://%s:%s@%s:%s/%s", RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_DEFAULT_VHOST)
 		rabbitMQConnection, err = amqp.Dial(dsn)
 		if err != nil {
 			fmt.Printf("failed to connect to RabbitMQ: %v", err)
