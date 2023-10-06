@@ -40,34 +40,9 @@ func (s *accountNumberServiceImpl) GetBalanceService(accountNumber int) (*accNum
 
 func (s *accountNumberServiceImpl) DepositService(account accNumberdto.AccountNumberRequest) (*accNumberdto.AccountNumberResponse, error) {
 
-	ch, err := rabbitmq.GetRabbitMQChannel()
-	if err != nil {
-		return nil, err
-	}
-
-	defer ch.Close()
-
 	deposit, err := s.accountNumberRepository.GetBalanceRepository(account.AccountNumber)
 	if err != nil {
 		return nil, err
-	}
-
-	queue, err := ch.QueueDeclare(
-		"deposit",
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.publishMessage(ch, deposit.ID, "D", account.Amount, queue.Name)
-	if err != nil {
-		fmt.Printf("failed to publish message: %v", err)
 	}
 
 	// update balance
@@ -77,10 +52,23 @@ func (s *accountNumberServiceImpl) DepositService(account accNumberdto.AccountNu
 		return nil, err
 	}
 
+	ch, err := rabbitmq.GetRabbitMQChannel()
+	if err != nil {
+		return nil, err
+	}
+
+	defer ch.Close()
+
+	queueName := "deposit"
+	err = s.publishMessage(ch, deposit.ID, "D", account.Amount, queueName)
+	if err != nil {
+		fmt.Printf("failed to publish message: %v", err)
+	}
+
 	done := make(chan bool)
 
 	go func() {
-		err = s.consumeMessage(ch, queue.Name, done)
+		err = s.consumeMessage(ch, queueName, done)
 		if err != nil {
 			fmt.Printf("Error consuming message: %v\n", err)
 		}
@@ -99,13 +87,6 @@ func (s *accountNumberServiceImpl) DepositService(account accNumberdto.AccountNu
 
 func (s *accountNumberServiceImpl) CashoutService(account accNumberdto.AccountNumberRequest) (*accNumberdto.AccountNumberResponse, error) {
 
-	ch, err := rabbitmq.GetRabbitMQChannel()
-	if err != nil {
-		return nil, err
-	}
-
-	defer ch.Close()
-
 	cashout, err := s.accountNumberRepository.GetBalanceRepository(account.AccountNumber)
 	if err != nil {
 		return nil, err
@@ -113,24 +94,6 @@ func (s *accountNumberServiceImpl) CashoutService(account accNumberdto.AccountNu
 
 	if cashout.Balance < account.Amount {
 		return nil, fmt.Errorf("balance not enough: %v", cashout.Balance)
-	}
-
-	queue, err := ch.QueueDeclare(
-		"cashout",
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.publishMessage(ch, cashout.ID, "C", account.Amount, queue.Name)
-	if err != nil {
-		fmt.Printf("failed to publish message: %v", err)
 	}
 
 	// update balance
@@ -142,10 +105,23 @@ func (s *accountNumberServiceImpl) CashoutService(account accNumberdto.AccountNu
 		return nil, err
 	}
 
+	ch, err := rabbitmq.GetRabbitMQChannel()
+	if err != nil {
+		return nil, err
+	}
+
+	defer ch.Close()
+
+	queueName := "cashout"
+	err = s.publishMessage(ch, cashout.ID, "C", account.Amount, queueName)
+	if err != nil {
+		fmt.Printf("failed to publish message: %v", err)
+	}
+
 	done := make(chan bool)
 
 	go func() {
-		err = s.consumeMessage(ch, queue.Name, done)
+		err = s.consumeMessage(ch, queueName, done)
 		if err != nil {
 			fmt.Printf("Error consuming message: %v\n", err)
 		}
@@ -166,6 +142,19 @@ func (s *accountNumberServiceImpl) CashoutService(account accNumberdto.AccountNu
 // publisher
 func (s *accountNumberServiceImpl) publishMessage(ch *amqp.Channel, accountNumber int, TransactionCode string, amount float64, queueName string) error {
 
+	queue, err := ch.QueueDeclare(
+		queueName,
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	if err != nil {
+		return err
+	}
+
 	mutasi := transactiondto.TransactionRequest{
 		AccountNumberID: accountNumber,
 		TransactionCode: TransactionCode,
@@ -181,7 +170,7 @@ func (s *accountNumberServiceImpl) publishMessage(ch *amqp.Channel, accountNumbe
 
 	err = ch.Publish(
 		"",
-		queueName,
+		queue.Name,
 		false,
 		false,
 		amqp.Publishing{
@@ -244,7 +233,6 @@ func (s *accountNumberServiceImpl) consumeMessage(ch *amqp.Channel, queueName st
 
 			fmt.Printf("Mutation message from RabbitMQ: %+v\n", mutasi)
 			msg.Ack(false)
-
 			done <- true
 
 		}(msg)

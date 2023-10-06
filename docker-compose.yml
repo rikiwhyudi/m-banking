@@ -21,6 +21,7 @@ services:
       MYAPP_RABBITMQ_PORT: $MYAPP_RABBITMQ_PORT
       MYAPP_RABBITMQ_USER: $MYAPP_RABBITMQ_USER
       MYAPP_RABBITMQ_PASSWORD: $MYAPP_RABBITMQ_PASSWORD
+      MYAPP_RABBITMQ_VHOST: $MYAPP_RABBITMQ_VHOST
     restart: always
     networks:
       - network
@@ -48,6 +49,7 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: $RABBITMQ_DEFAULT_USER
       RABBITMQ_DEFAULT_PASS: $RABBITMQ_DEFAULT_PASS
+      RABBITMQ_DEFAULT_VHOST: $RABBITMQ_DEFAULT_VHOST
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
