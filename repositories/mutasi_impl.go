@@ -16,6 +16,14 @@ func (r *repository) GetTransactionRepository(accountNumber int) ([]models.Trans
 
 	// start db transaction
 	tx := r.db.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			return
+		}
+	}()
+
 	if tx.Error != nil {
 		return transactions, tx.Error
 	}
@@ -47,6 +55,14 @@ func (r *repository) CreateTransactionReposity(transaction models.Transaction) (
 	var err error
 
 	tx := r.db.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			return
+		}
+	}()
+
 	if tx.Error != nil {
 		return transaction, tx.Error
 	}
@@ -59,6 +75,7 @@ func (r *repository) CreateTransactionReposity(transaction models.Transaction) (
 
 	err = tx.Commit().Error
 	if err != nil {
+		tx.Rollback()
 		return transaction, err
 	}
 
