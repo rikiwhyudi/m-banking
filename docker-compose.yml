@@ -1,8 +1,8 @@
 version: '3.9'
 services:
-  tabungan:
-    container_name: tabungan
-    image: tabungan:1.0.0
+  rest-api:
+    container_name: tabungan_container
+    image: rest-api:1.0.0
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,12 +11,22 @@ services:
     depends_on:
       - postgres
       - rabbitmq
+    environment:
+      MYAPP_DB_HOST: $MYAPP_DB_HOST
+      MYAPP_DB_PORT: $MYAPP_DB_PORT
+      MYAPP_DB_USER: $MYAPP_DB_USER
+      MYAPP_DB_PASSWORD: $MYAPP_DB_PASSWORD
+      MYAPP_DB_NAME: $MYAPP_DB_NAME
+      MYAPP_RABBITMQ_HOST: $MYAPP_RABBITMQ_HOST
+      MYAPP_RABBITMQ_PORT: $MYAPP_RABBITMQ_PORT
+      MYAPP_RABBITMQ_USER: $MYAPP_RABBITMQ_USER
+      MYAPP_RABBITMQ_PASSWORD: $MYAPP_RABBITMQ_PASSWORD
     restart: always
     networks:
       - network
 
   postgres:
-    container_name: postgres
+    container_name: postgres_container
     image: postgres:11.21-alpine3.17
     ports:
       - '5432:5432'
@@ -30,7 +40,7 @@ services:
       - network
 
   rabbitmq:
-    container_name: rabbitmq
+    container_name: rabbitmq_container
     image: rabbitmq:3.12.6-management-alpine
     ports:
       - '5672:5672'
