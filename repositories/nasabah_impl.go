@@ -15,6 +15,14 @@ func (r *repository) RegisterCustomerRepository(customer models.Customer, accoun
 
 	// start db transaction
 	tx := r.db.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			return
+		}
+	}()
+
 	if tx.Error != nil {
 		return customer, tx.Error
 	}
@@ -42,6 +50,7 @@ func (r *repository) RegisterCustomerRepository(customer models.Customer, accoun
 	// commit db transaction
 	err = tx.Commit().Error
 	if err != nil {
+		tx.Rollback()
 		return customer, err
 	}
 

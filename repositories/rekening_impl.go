@@ -15,6 +15,14 @@ func (r *repository) GetBalanceRepository(accountNumber int) (models.AccountNumb
 	var account models.AccountNumber
 
 	tx := r.db.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			return
+		}
+	}()
+
 	if tx.Error != nil {
 		return account, tx.Error
 	}
@@ -39,6 +47,14 @@ func (r *repository) DepositRepository(deposit models.AccountNumber) (models.Acc
 
 	// start db transaction
 	tx := r.db.Begin()
+
+	defer func() {
+		if r := recover(); nil != r {
+			tx.Rollback()
+			return
+		}
+	}()
+
 	if tx.Error != nil {
 		return deposit, tx.Error
 	}
@@ -63,6 +79,14 @@ func (r *repository) CashoutRepository(cashout models.AccountNumber) (models.Acc
 	var err error
 
 	tx := r.db.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			return
+		}
+	}()
+
 	if tx.Error != nil {
 		return cashout, tx.Error
 	}
