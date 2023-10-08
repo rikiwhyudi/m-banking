@@ -5,9 +5,11 @@ WORKDIR /app
 
 # install any necessary dependencies
 COPY go.mod go.sum ./
+
 RUN go mod download
 
 COPY . .
+
 RUN CGO_ENABLED=0 GOOS=linux go build -o rest-api
 
 # stage 2: create a minimal runtime image
@@ -24,6 +26,7 @@ RUN wget -O dockerize.tar.gz https://github.com/jwilder/dockerize/releases/downl
 COPY --from=builder /app/rest-api .
 
 COPY . .
+
 EXPOSE 8080
 
 # use dockerize to wait for PostgreSQL and RabbitMQ to be ready before running the app

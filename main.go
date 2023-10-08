@@ -3,6 +3,7 @@ package main
 import (
 	"e-wallet/database"
 	"e-wallet/pkg/postgresql"
+	"e-wallet/pkg/rabbitmq"
 	"e-wallet/routes"
 	"fmt"
 	"net/http"
@@ -23,6 +24,12 @@ func main() {
 	// initialize DB connection
 	postgresql.DatabaseInit()
 
+	// initialize RabbitMQ connection
+	rabbitmq.RabbitMqInit()
+
+	//initialize RabbitMq consumer
+	rabbitmq.RabbitMqConsumerInit()
+
 	// initialize Mux Router connection
 	r := mux.NewRouter()
 
@@ -33,8 +40,16 @@ func main() {
 	routes.RouteInit(r.PathPrefix("/api/v1").Subrouter())
 
 	port := os.Getenv("PORT")
+	if port == "" {
+		panic("PORT .env is required...")
+	}
 
 	// run server
-	fmt.Println("server running on port " + port)
-	http.ListenAndServe(":"+port, r)
+	server := new(http.Server)
+	server.Handler = r
+	server.Addr = ":" + port
+	fmt.Println("server runing on port " + port + "...")
+	if err = server.ListenAndServe(); err != nil {
+		panic(err.Error())
+	}
 }

@@ -1,25 +1,20 @@
 package service
 
 import (
-	transactiondto "e-wallet/dto/mutasi"
 	accNumberdto "e-wallet/dto/rekening"
-	"e-wallet/models"
-	"e-wallet/pkg/rabbitmq"
+	"e-wallet/internal"
 	"e-wallet/repositories"
-	"encoding/json"
 	"fmt"
-	"time"
-
-	"github.com/streadway/amqp"
+	"sync"
 )
 
 type accountNumberServiceImpl struct {
 	accountNumberRepository repositories.AccountNumberRepository
-	transactionRepository   repositories.TransactionRepository
+	publisher               internal.Publisher
 }
 
-func NewServiceAccountNumberImpl(accountNumberRepository repositories.AccountNumberRepository, transactionRepository repositories.TransactionRepository) AccountNumberService {
-	return &accountNumberServiceImpl{accountNumberRepository, transactionRepository}
+func NewServiceAccountNumberImpl(accountNumberRepository repositories.AccountNumberRepository, publisher internal.Publisher) AccountNumberService {
+	return &accountNumberServiceImpl{accountNumberRepository, publisher}
 }
 
 func (s *accountNumberServiceImpl) GetBalanceService(accountNumber int) (*accNumberdto.AccountNumberResponse, error) {
@@ -35,7 +30,7 @@ func (s *accountNumberServiceImpl) GetBalanceService(accountNumber int) (*accNum
 		Balance:       data.Balance,
 	}
 
-	return response, nil
+	return response, err
 }
 
 func (s *accountNumberServiceImpl) DepositService(account accNumberdto.AccountNumberRequest) (*accNumberdto.AccountNumberResponse, error) {
@@ -45,6 +40,25 @@ func (s *accountNumberServiceImpl) DepositService(account accNumberdto.AccountNu
 		return nil, err
 	}
 
+	var publishError error
+	var wg sync.WaitGroup
+	queueName := "deposit"
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		publishError = s.publisher.PublishMessage(deposit.ID, "D", account.Amount, queueName)
+		if err != nil {
+			fmt.Printf("error publishing message: %v\n", err)
+		}
+	}()
+
+	wg.Wait()
+
+	if publishError != nil {
+		return nil, publishError
+	}
+
 	// update balance
 	deposit.Balance += account.Amount
 	data, err := s.accountNumberRepository.DepositRepository(deposit)
@@ -52,37 +66,13 @@ func (s *accountNumberServiceImpl) DepositService(account accNumberdto.AccountNu
 		return nil, err
 	}
 
-	ch, err := rabbitmq.GetRabbitMQChannel()
-	if err != nil {
-		return nil, err
-	}
-
-	defer ch.Close()
-
-	queueName := "deposit"
-	err = s.publishMessage(ch, deposit.ID, "D", account.Amount, queueName)
-	if err != nil {
-		fmt.Printf("failed to publish message: %v", err)
-	}
-
-	done := make(chan bool)
-
-	go func() {
-		err = s.consumeMessage(ch, queueName, done)
-		if err != nil {
-			fmt.Printf("Error consuming message: %v\n", err)
-		}
-	}()
-
-	<-done
-
 	response := &accNumberdto.AccountNumberResponse{
 		ID:            data.ID,
 		AccountNumber: data.AccountNumber,
 		Balance:       data.Balance,
 	}
 
-	return response, nil
+	return response, err
 }
 
 func (s *accountNumberServiceImpl) CashoutService(account accNumberdto.AccountNumberRequest) (*accNumberdto.AccountNumberResponse, error) {
@@ -96,38 +86,31 @@ func (s *accountNumberServiceImpl) CashoutService(account accNumberdto.AccountNu
 		return nil, fmt.Errorf("balance not enough: %v", cashout.Balance)
 	}
 
-	// update balance
-	cashout.Balance -= account.Amount
-
-	data, err := s.accountNumberRepository.CashoutRepository(cashout)
-
-	if err != nil {
-		return nil, err
-	}
-
-	ch, err := rabbitmq.GetRabbitMQChannel()
-	if err != nil {
-		return nil, err
-	}
-
-	defer ch.Close()
-
+	var publishError error
+	var wg sync.WaitGroup
 	queueName := "cashout"
-	err = s.publishMessage(ch, cashout.ID, "C", account.Amount, queueName)
-	if err != nil {
-		fmt.Printf("failed to publish message: %v", err)
-	}
 
-	done := make(chan bool)
-
+	wg.Add(1)
 	go func() {
-		err = s.consumeMessage(ch, queueName, done)
+		defer wg.Done()
+		publishError = s.publisher.PublishMessage(cashout.ID, "C", account.Amount, queueName)
 		if err != nil {
-			fmt.Printf("Error consuming message: %v\n", err)
+			fmt.Printf("error publishing message: %v\n", err)
 		}
 	}()
 
-	<-done
+	wg.Wait()
+
+	if publishError != nil {
+		return nil, err
+	}
+
+	// update balance
+	cashout.Balance -= account.Amount
+	data, err := s.accountNumberRepository.CashoutRepository(cashout)
+	if err != nil {
+		return nil, err
+	}
 
 	response := &accNumberdto.AccountNumberResponse{
 		ID:            data.ID,
@@ -135,108 +118,6 @@ func (s *accountNumberServiceImpl) CashoutService(account accNumberdto.AccountNu
 		Balance:       data.Balance,
 	}
 
-	return response, nil
+	return response, err
 
-}
-
-// publisher
-func (s *accountNumberServiceImpl) publishMessage(ch *amqp.Channel, accountNumber int, TransactionCode string, amount float64, queueName string) error {
-
-	queue, err := ch.QueueDeclare(
-		queueName,
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	mutasi := transactiondto.TransactionRequest{
-		AccountNumberID: accountNumber,
-		TransactionCode: TransactionCode,
-		Amount:          amount,
-		Date:            time.Now(),
-	}
-
-	mutasiMessage, err := json.Marshal(mutasi)
-
-	if err != nil {
-		return err
-	}
-
-	err = ch.Publish(
-		"",
-		queue.Name,
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "application/json;",
-			Body:        mutasiMessage,
-		},
-	)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// consumer
-func (s *accountNumberServiceImpl) consumeMessage(ch *amqp.Channel, queueName string, done chan bool) error {
-
-	msgs, err := ch.Consume(
-		queueName,
-		"",
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	for msg := range msgs {
-		go func(msg amqp.Delivery) {
-			defer func() {
-				if r := recover(); r != nil {
-					fmt.Printf("Panic: %v\n", r)
-					return
-				}
-
-			}()
-
-			var mutasi transactiondto.TransactionRequest
-			if err := json.Unmarshal(msg.Body, &mutasi); err != nil {
-				fmt.Printf("failed parsing msg from RabbitMQ: %s\n", err)
-				return
-			}
-
-			transaction := models.Transaction{
-				AccountNumberID: mutasi.AccountNumberID,
-				TransactionCode: mutasi.TransactionCode,
-				Amount:          mutasi.Amount,
-				Date:            mutasi.Date,
-			}
-
-			if _, err := s.transactionRepository.CreateTransactionReposity(transaction); err != nil {
-				fmt.Printf("failed save mutation to database: %s\n", err)
-				return
-			}
-
-			fmt.Printf("Mutation message from RabbitMQ: %+v\n", mutasi)
-			msg.Ack(false)
-			done <- true
-
-		}(msg)
-	}
-
-	return nil
 }

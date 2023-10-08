@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-var rabbitMQConnection *amqp.Connection
+var RMQ *amqp.Connection
 
-func GetRabbitMQChannel() (*amqp.Channel, error) {
+func RabbitMqInit() {
 	var err error
 
 	RABBITMQ_HOST := os.Getenv("RABBITMQ_HOST")
@@ -18,20 +18,21 @@ func GetRabbitMQChannel() (*amqp.Channel, error) {
 	RABBITMQ_DEFAULT_PASS := os.Getenv("RABBITMQ_DEFAULT_PASS")
 	RABBITMQ_DEFAULT_VHOST := os.Getenv("RABBITMQ_DEFAULT_VHOST")
 
-	if rabbitMQConnection == nil {
-
-		// create a new RabbitMQ connection if it doesnt exist
+	if RMQ == nil {
 		dsn := fmt.Sprintf("amqp://%s:%s@%s:%s/%s", RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_DEFAULT_VHOST)
-		rabbitMQConnection, err = amqp.Dial(dsn)
+		RMQ, err = amqp.Dial(dsn)
 		if err != nil {
-			fmt.Printf("failed to connect to RabbitMQ: %v", err)
-			return nil, err
+			panic(err)
 		}
 
 	}
 
-	// create and return RabbitMQ channel
-	ch, err := rabbitMQConnection.Channel()
+	fmt.Println("connected to RabbitMQ Management...")
+
+}
+
+func GetRabbitMqChannel() (*amqp.Channel, error) {
+	ch, err := RMQ.Channel()
 	if err != nil {
 		return nil, err
 	}

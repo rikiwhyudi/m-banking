@@ -24,7 +24,7 @@ func (h *transactionHandlerImpl) GetTransactionHandler(w http.ResponseWriter, r 
 	accountNumber, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		response := dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
@@ -32,12 +32,12 @@ func (h *transactionHandlerImpl) GetTransactionHandler(w http.ResponseWriter, r 
 	transactionResponse, err := h.transactionServiceImpl.GetTransactionService(accountNumber)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		response := dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: transactionResponse}
+	response := dto.Result{Code: http.StatusOK, Message: transactionResponse}
 	json.NewEncoder(w).Encode(response)
 }
