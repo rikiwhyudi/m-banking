@@ -27,7 +27,7 @@ func (h *customerHandlerImpl) RegisterCustomerHandler(w http.ResponseWriter, r *
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		response := dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewDecoder(r.Body).Decode(&response)
 		return
 	}
@@ -35,7 +35,7 @@ func (h *customerHandlerImpl) RegisterCustomerHandler(w http.ResponseWriter, r *
 	// Validate request input using go-playground/validator
 	if err = h.validation.Struct(request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		response := dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
@@ -43,13 +43,13 @@ func (h *customerHandlerImpl) RegisterCustomerHandler(w http.ResponseWriter, r *
 	customerResponse, err := h.customerServiceImpl.RegisterCustomerService(request)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		response := dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.Result{Code: http.StatusOK, Message: customerResponse}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: customerResponse}
 	json.NewEncoder(w).Encode(response)
 
 }
