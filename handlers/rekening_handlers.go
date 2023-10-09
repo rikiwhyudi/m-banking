@@ -16,49 +16,43 @@ import (
 type accountNumberHandlerImpl struct {
 	accountNumberServiceImpl service.AccountNumberService
 	validation               *validator.Validate
+	wg                       sync.WaitGroup
+	mu                       sync.Mutex
 }
 
 func NewHandlerAccountNumberImpl(accountNumberServiceImpl service.AccountNumberService) *accountNumberHandlerImpl {
-	return &accountNumberHandlerImpl{accountNumberServiceImpl, validator.New()}
+	return &accountNumberHandlerImpl{accountNumberServiceImpl, validator.New(), sync.WaitGroup{}, sync.Mutex{}}
 }
 
 func (h *accountNumberHandlerImpl) GetBalanceHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
+	// Parse the accountNumber from the request
 	accountNumber, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		writeResponse(w, http.StatusBadRequest, response)
 		return
 	}
 
-	responses := make(chan dto.Result, 1)
-	var wg sync.WaitGroup
+	h.mu.Lock()
+	defer h.mu.Unlock()
 
-	wg.Add(1)
+	h.wg.Add(1)
 	go func() {
-		defer wg.Done()
+		defer h.wg.Done()
 		accountNumberResponse, err := h.accountNumberServiceImpl.GetBalanceService(accountNumber)
 		if err != nil {
-			responses <- dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
+			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+			writeResponse(w, http.StatusBadRequest, response)
 			return
 		}
-		responses <- dto.Result{Code: http.StatusOK, Message: accountNumberResponse}
+
+		response := dto.SuccessResult{Code: http.StatusOK, Data: accountNumberResponse}
+		writeResponse(w, http.StatusOK, response)
 	}()
 
-	wg.Wait()
-	close(responses)
-
-	for response := range responses {
-		if response.Code != http.StatusOK {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(response)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
-	}
+	h.wg.Wait()
 }
 
 func (h *accountNumberHandlerImpl) DepositHandler(w http.ResponseWriter, r *http.Request) {
@@ -67,46 +61,36 @@ func (h *accountNumberHandlerImpl) DepositHandler(w http.ResponseWriter, r *http
 	var request accNumberdto.AccountNumberRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		writeResponse(w, http.StatusBadRequest, response)
 		return
 	}
 
 	// Validate request input using go-playground/validator
 	if err = h.validation.Struct(request); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		writeResponse(w, http.StatusBadRequest, response)
 		return
 	}
 
-	responses := make(chan dto.Result, 1)
-	var wg sync.WaitGroup
+	h.mu.Lock()
+	defer h.mu.Unlock()
 
-	wg.Add(1)
+	h.wg.Add(1)
 	go func() {
-		defer wg.Done()
+		defer h.wg.Done()
 		accountNumberResponse, err := h.accountNumberServiceImpl.DepositService(request)
 		if err != nil {
-			responses <- dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
+			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+			writeResponse(w, http.StatusBadRequest, response)
 			return
 		}
-		responses <- dto.Result{Code: http.StatusOK, Message: accountNumberResponse}
+
+		response := dto.SuccessResult{Code: http.StatusOK, Data: accountNumberResponse}
+		writeResponse(w, http.StatusOK, response)
 	}()
 
-	wg.Wait()
-	close(responses)
-
-	for response := range responses {
-		if response.Code != http.StatusOK {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(response)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
-	}
+	h.wg.Wait()
 }
 
 func (h *accountNumberHandlerImpl) CashoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -115,44 +99,33 @@ func (h *accountNumberHandlerImpl) CashoutHandler(w http.ResponseWriter, r *http
 	var request accNumberdto.AccountNumberRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		writeResponse(w, http.StatusBadRequest, response)
 		return
 	}
 
-	// Validate request input using go-playground/validator
 	if err = h.validation.Struct(request); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		writeResponse(w, http.StatusBadRequest, response)
 		return
 	}
 
-	responses := make(chan dto.Result, 1)
-	var wg sync.WaitGroup
+	h.mu.Lock()
+	defer h.mu.Unlock()
 
-	wg.Add(1)
+	h.wg.Add(1)
 	go func() {
-		defer wg.Done()
+		defer h.wg.Done()
 		accountNumberResponse, err := h.accountNumberServiceImpl.CashoutService(request)
 		if err != nil {
-			responses <- dto.Result{Code: http.StatusBadRequest, Message: err.Error()}
+			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+			writeResponse(w, http.StatusBadRequest, response)
 			return
 		}
-		responses <- dto.Result{Code: http.StatusOK, Message: accountNumberResponse}
+
+		response := dto.SuccessResult{Code: http.StatusOK, Data: accountNumberResponse}
+		writeResponse(w, http.StatusOK, response)
 	}()
 
-	wg.Wait()
-	close(responses)
-
-	for response := range responses {
-		if response.Code != http.StatusOK {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(response)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
-	}
+	h.wg.Wait()
 }
