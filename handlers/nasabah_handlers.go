@@ -6,6 +6,7 @@ import (
 	"e-wallet/service"
 	"encoding/json"
 	"net/http"
+	"sync"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -13,17 +14,18 @@ import (
 type customerHandlerImpl struct {
 	customerServiceImpl service.CustomerService
 	validation          *validator.Validate
+	wg                  sync.WaitGroup
+	mu                  sync.Mutex
 }
 
 func NewHanlderCustomerImpl(customerServiceImpl service.CustomerService) *customerHandlerImpl {
-	return &customerHandlerImpl{customerServiceImpl, validator.New()}
+	return &customerHandlerImpl{customerServiceImpl, validator.New(), sync.WaitGroup{}, sync.Mutex{}}
 }
 
 func (h *customerHandlerImpl) RegisterCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	var request customerdto.CustomerRequest
-
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -40,16 +42,25 @@ func (h *customerHandlerImpl) RegisterCustomerHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	customerResponse, err := h.customerServiceImpl.RegisterCustomerService(request)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
-		return
-	}
+	h.mu.Lock()
+	defer h.mu.Unlock()
 
-	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: customerResponse}
-	json.NewEncoder(w).Encode(response)
+	h.wg.Add(1)
+	go func() {
+		defer h.wg.Done()
+		customerResponse, err := h.customerServiceImpl.RegisterCustomerService(request)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		response := dto.SuccessResult{Code: http.StatusOK, Data: customerResponse}
+		json.NewEncoder(w).Encode(response)
+	}()
+
+	h.wg.Wait()
 
 }

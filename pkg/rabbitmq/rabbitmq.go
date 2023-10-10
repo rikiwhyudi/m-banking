@@ -7,9 +7,10 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-var RMQ *amqp.Connection
+var RabbitMQChannel *amqp.Channel
 
 func RabbitMqInit() {
+	var connection *amqp.Connection
 	var err error
 
 	RABBITMQ_HOST := os.Getenv("RABBITMQ_HOST")
@@ -18,9 +19,9 @@ func RabbitMqInit() {
 	RABBITMQ_DEFAULT_PASS := os.Getenv("RABBITMQ_DEFAULT_PASS")
 	RABBITMQ_DEFAULT_VHOST := os.Getenv("RABBITMQ_DEFAULT_VHOST")
 
-	if RMQ == nil {
+	if connection == nil {
 		dsn := fmt.Sprintf("amqp://%s:%s@%s:%s/%s", RABBITMQ_DEFAULT_USER, RABBITMQ_DEFAULT_PASS, RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_DEFAULT_VHOST)
-		RMQ, err = amqp.Dial(dsn)
+		connection, err = amqp.Dial(dsn)
 		if err != nil {
 			panic(err)
 		}
@@ -29,13 +30,9 @@ func RabbitMqInit() {
 
 	fmt.Println("connected to RabbitMQ Management...")
 
-}
-
-func GetRabbitMqChannel() (*amqp.Channel, error) {
-	ch, err := RMQ.Channel()
+	RabbitMQChannel, err = connection.Channel()
 	if err != nil {
-		return nil, err
+		fmt.Printf("failed to get RabbitMQ channel: %v", err)
 	}
 
-	return ch, err
 }

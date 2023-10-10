@@ -27,8 +27,8 @@ func main() {
 	// initialize RabbitMQ connection
 	rabbitmq.RabbitMqInit()
 
-	//initialize RabbitMq consumer
-	rabbitmq.RabbitMqConsumerInit()
+	//run RabbitMq consumer
+	rabbitmq.RabbitMqConsumer()
 
 	// initialize Mux Router connection
 	r := mux.NewRouter()
@@ -36,7 +36,7 @@ func main() {
 	// run database migrations
 	database.RunMigration()
 
-	// initialize grouping routes
+	// initialize and configure routes
 	routes.RouteInit(r.PathPrefix("/api/v1").Subrouter())
 
 	port := os.Getenv("PORT")
@@ -48,8 +48,10 @@ func main() {
 	server := new(http.Server)
 	server.Handler = r
 	server.Addr = ":" + port
+
 	fmt.Println("server runing on port " + port + "...")
-	if err = server.ListenAndServe(); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		panic(err.Error())
 	}
+
 }

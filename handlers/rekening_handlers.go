@@ -30,8 +30,9 @@ func (h *accountNumberHandlerImpl) GetBalanceHandler(w http.ResponseWriter, r *h
 	// Parse the accountNumber from the request
 	accountNumber, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		writeResponse(w, http.StatusBadRequest, response)
+		json.NewEncoder(w).Encode(response)
 		return
 	}
 
@@ -43,13 +44,15 @@ func (h *accountNumberHandlerImpl) GetBalanceHandler(w http.ResponseWriter, r *h
 		defer h.wg.Done()
 		accountNumberResponse, err := h.accountNumberServiceImpl.GetBalanceService(accountNumber)
 		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-			writeResponse(w, http.StatusBadRequest, response)
+			json.NewEncoder(w).Encode(response)
 			return
 		}
 
+		w.WriteHeader(http.StatusOK)
 		response := dto.SuccessResult{Code: http.StatusOK, Data: accountNumberResponse}
-		writeResponse(w, http.StatusOK, response)
+		json.NewEncoder(w).Encode(response)
 	}()
 
 	h.wg.Wait()
@@ -61,15 +64,17 @@ func (h *accountNumberHandlerImpl) DepositHandler(w http.ResponseWriter, r *http
 	var request accNumberdto.AccountNumberRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		writeResponse(w, http.StatusBadRequest, response)
+		json.NewEncoder(w).Encode(response)
 		return
 	}
 
 	// Validate request input using go-playground/validator
 	if err = h.validation.Struct(request); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		writeResponse(w, http.StatusBadRequest, response)
+		json.NewEncoder(w).Encode(response)
 		return
 	}
 
@@ -81,13 +86,14 @@ func (h *accountNumberHandlerImpl) DepositHandler(w http.ResponseWriter, r *http
 		defer h.wg.Done()
 		accountNumberResponse, err := h.accountNumberServiceImpl.DepositService(request)
 		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-			writeResponse(w, http.StatusBadRequest, response)
+			json.NewEncoder(w).Encode(response)
 			return
 		}
-
+		w.WriteHeader(http.StatusOK)
 		response := dto.SuccessResult{Code: http.StatusOK, Data: accountNumberResponse}
-		writeResponse(w, http.StatusOK, response)
+		json.NewEncoder(w).Encode(response)
 	}()
 
 	h.wg.Wait()
@@ -99,14 +105,16 @@ func (h *accountNumberHandlerImpl) CashoutHandler(w http.ResponseWriter, r *http
 	var request accNumberdto.AccountNumberRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		writeResponse(w, http.StatusBadRequest, response)
+		json.NewEncoder(w).Encode(response)
 		return
 	}
 
 	if err = h.validation.Struct(request); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		writeResponse(w, http.StatusBadRequest, response)
+		json.NewEncoder(w).Encode(response)
 		return
 	}
 
@@ -118,13 +126,15 @@ func (h *accountNumberHandlerImpl) CashoutHandler(w http.ResponseWriter, r *http
 		defer h.wg.Done()
 		accountNumberResponse, err := h.accountNumberServiceImpl.CashoutService(request)
 		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-			writeResponse(w, http.StatusBadRequest, response)
+			json.NewEncoder(w).Encode(response)
 			return
 		}
 
+		w.WriteHeader(http.StatusOK)
 		response := dto.SuccessResult{Code: http.StatusOK, Data: accountNumberResponse}
-		writeResponse(w, http.StatusOK, response)
+		json.NewEncoder(w).Encode(response)
 	}()
 
 	h.wg.Wait()
