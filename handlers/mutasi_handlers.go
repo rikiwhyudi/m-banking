@@ -6,16 +6,19 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/gorilla/mux"
 )
 
 type transactionHandlerImpl struct {
 	transactionServiceImpl service.TransactionService
+	wg                     sync.WaitGroup
+	mu                     sync.Mutex
 }
 
 func NewHandlerTransactionImpl(transactionServiceImpl service.TransactionService) *transactionHandlerImpl {
-	return &transactionHandlerImpl{transactionServiceImpl}
+	return &transactionHandlerImpl{transactionServiceImpl, sync.WaitGroup{}, sync.Mutex{}}
 }
 
 func (h *transactionHandlerImpl) GetTransactionHandler(w http.ResponseWriter, r *http.Request) {
@@ -29,15 +32,24 @@ func (h *transactionHandlerImpl) GetTransactionHandler(w http.ResponseWriter, r 
 		return
 	}
 
-	transactionResponse, err := h.transactionServiceImpl.GetTransactionService(accountNumber)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
-		return
-	}
+	h.mu.Lock()
+	defer h.mu.Unlock()
 
-	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: transactionResponse}
-	json.NewEncoder(w).Encode(response)
+	h.wg.Add(1)
+	go func() {
+		defer h.wg.Done()
+		transactionResponse, err := h.transactionServiceImpl.GetTransactionService(accountNumber)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		response := dto.SuccessResult{Code: http.StatusOK, Data: transactionResponse}
+		json.NewEncoder(w).Encode(response)
+	}()
+
+	h.wg.Wait()
 }

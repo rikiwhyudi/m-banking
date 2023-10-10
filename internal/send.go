@@ -9,15 +9,11 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type publisher struct {
-	ch *amqp.Channel
+func NewPublisherImpl(ch *amqp.Channel) MessageBroker {
+	return &amqpChannel{ch, nil}
 }
 
-func NewPublisherImpl(ch *amqp.Channel) Publisher {
-	return &publisher{ch}
-}
-
-func (p *publisher) PublishMessage(accountNumber int, TransactionCode string, amount float64, queueName string) error {
+func (p *amqpChannel) PublishMessage(accountNumber int, TransactionCode string, amount float64, queueName string) error {
 
 	queue, err := p.ch.QueueDeclare(
 		queueName,

@@ -3,6 +3,7 @@ package service
 import (
 	accNumberdto "e-wallet/dto/rekening"
 	"e-wallet/internal"
+	"e-wallet/pkg/rabbitmq"
 	"e-wallet/repositories"
 	"fmt"
 	"sync"
@@ -10,11 +11,11 @@ import (
 
 type accountNumberServiceImpl struct {
 	accountNumberRepository repositories.AccountNumberRepository
-	publisher               internal.Publisher
+	publisher               internal.MessageBroker
 }
 
-func NewServiceAccountNumberImpl(accountNumberRepository repositories.AccountNumberRepository, publisher internal.Publisher) AccountNumberService {
-	return &accountNumberServiceImpl{accountNumberRepository, publisher}
+func NewServiceAccountNumberImpl(accountNumberRepository repositories.AccountNumberRepository) AccountNumberService {
+	return &accountNumberServiceImpl{accountNumberRepository, internal.NewPublisherImpl(rabbitmq.RabbitMQChannel)}
 }
 
 func (s *accountNumberServiceImpl) GetBalanceService(accountNumber int) (*accNumberdto.AccountNumberResponse, error) {
@@ -42,12 +43,11 @@ func (s *accountNumberServiceImpl) DepositService(account accNumberdto.AccountNu
 
 	var publishError error
 	var wg sync.WaitGroup
-	queueName := "deposit"
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		publishError = s.publisher.PublishMessage(deposit.ID, "D", account.Amount, queueName)
+		publishError = s.publisher.PublishMessage(deposit.ID, "D", account.Amount, "deposit")
 		if err != nil {
 			fmt.Printf("error publishing message: %v\n", err)
 		}
@@ -88,12 +88,11 @@ func (s *accountNumberServiceImpl) CashoutService(account accNumberdto.AccountNu
 
 	var publishError error
 	var wg sync.WaitGroup
-	queueName := "cashout"
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		publishError = s.publisher.PublishMessage(cashout.ID, "C", account.Amount, queueName)
+		publishError = s.publisher.PublishMessage(cashout.ID, "C", account.Amount, "cashout")
 		if err != nil {
 			fmt.Printf("error publishing message: %v\n", err)
 		}

@@ -2,7 +2,7 @@ package dto
 
 type SuccessResult struct {
 	Code int         `json:"code"`
-	Data interface{} `json:"message"`
+	Data interface{} `json:"data"`
 }
 
 type ErrorResult struct {

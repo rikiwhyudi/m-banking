@@ -27,7 +27,7 @@ func (s *customerServiceImpl) RegisterCustomerService(customer customerdto.Custo
 	createAccountNumber := models.AccountNumber{
 		AccountNumber: int(time.Now().UnixNano()),
 		CustomerID:    createCustomer.ID,
-		Balance:       0,
+		Balance:       0.00,
 	}
 
 	data, err := s.customerRepository.RegisterCustomerRepository(createCustomer, createAccountNumber)
