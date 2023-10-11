@@ -1,7 +1,10 @@
 package service
 
-import "e-wallet/models"
+import (
+	"context"
+	"e-wallet/models"
+)
 
 type TransactionService interface {
-	GetTransactionService(accountNumber int) ([]models.Transaction, error)
+	GetTransactionService(ctx context.Context, accountNumber int) ([]models.Transaction, error)
 }

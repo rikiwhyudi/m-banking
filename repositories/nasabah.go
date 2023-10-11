@@ -1,7 +1,10 @@
 package repositories
 
-import "e-wallet/models"
+import (
+	"context"
+	"e-wallet/models"
+)
 
 type CustomerRepository interface {
-	RegisterCustomerRepository(customer models.Customer, accountNumber models.AccountNumber) (models.Customer, error)
+	RegisterCustomerRepository(ctx context.Context, customer models.Customer, accountNumber models.AccountNumber) (models.Customer, error)
 }

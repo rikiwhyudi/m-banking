@@ -1,9 +1,12 @@
 package repositories
 
-import "e-wallet/models"
+import (
+	"context"
+	"e-wallet/models"
+)
 
 type AccountNumberRepository interface {
-	GetBalanceRepository(accountNumber int) (models.AccountNumber, error)
-	DepositRepository(deposit models.AccountNumber) (models.AccountNumber, error)
-	CashoutRepository(cashout models.AccountNumber) (models.AccountNumber, error)
+	GetBalanceRepository(ctx context.Context, ccountNumber int) (models.AccountNumber, error)
+	DepositRepository(ctx context.Context, deposit models.AccountNumber) (models.AccountNumber, error)
+	CashoutRepository(ctx context.Context, cashout models.AccountNumber) (models.AccountNumber, error)
 }

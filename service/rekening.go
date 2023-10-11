@@ -1,11 +1,12 @@
 package service
 
 import (
+	"context"
 	accNumberdto "e-wallet/dto/rekening"
 )
 
 type AccountNumberService interface {
-	GetBalanceService(accountNumber int) (*accNumberdto.AccountNumberResponse, error)
-	DepositService(account accNumberdto.AccountNumberRequest) (*accNumberdto.AccountNumberResponse, error)
-	CashoutService(account accNumberdto.AccountNumberRequest) (*accNumberdto.AccountNumberResponse, error)
+	GetBalanceService(ctx context.Context, accountNumber int) (*accNumberdto.AccountNumberResponse, error)
+	DepositService(ctx context.Context, account accNumberdto.AccountNumberRequest) (*accNumberdto.AccountNumberResponse, error)
+	CashoutService(ctx context.Context, account accNumberdto.AccountNumberRequest) (*accNumberdto.AccountNumberResponse, error)
 }

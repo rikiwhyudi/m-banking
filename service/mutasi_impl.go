@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"e-wallet/models"
 	"e-wallet/repositories"
 )
@@ -13,13 +14,19 @@ func NewServiceTransactionImpl(transactionRepository repositories.TransactionRep
 	return &transactionServiceImpl{transactionRepository}
 }
 
-func (s *transactionServiceImpl) GetTransactionService(accountNumber int) ([]models.Transaction, error) {
+func (s *transactionServiceImpl) GetTransactionService(ctx context.Context, accountNumber int) ([]models.Transaction, error) {
 
-	response, err := s.transactionRepository.GetTransactionRepository(accountNumber)
-	if err != nil {
-		return nil, err
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+		response, err := s.transactionRepository.GetTransactionRepository(ctx, accountNumber)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return response, err
 	}
-
-	return response, err
 
 }
