@@ -45,9 +45,10 @@ func main() {
 	}
 
 	// run server
-	server := new(http.Server)
-	server.Handler = r
-	server.Addr = ":" + port
+	server := &http.Server{
+		Addr:    ":" + port,
+		Handler: r,
+	}
 
 	fmt.Println("server runing on port " + port + "...")
 	if err := server.ListenAndServe(); err != nil {

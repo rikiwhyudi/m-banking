@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	accNumberdto "e-wallet/dto/rekening"
 	dto "e-wallet/dto/result"
 	"e-wallet/service"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/go-playground/validator"
 	"github.com/gorilla/mux"
@@ -36,13 +38,16 @@ func (h *accountNumberHandlerImpl) GetBalanceHandler(w http.ResponseWriter, r *h
 		return
 	}
 
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
 	h.wg.Add(1)
 	go func() {
 		defer h.wg.Done()
-		accountNumberResponse, err := h.accountNumberServiceImpl.GetBalanceService(accountNumber)
+		accountNumberResponse, err := h.accountNumberServiceImpl.GetBalanceService(ctx, accountNumber)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -70,6 +75,9 @@ func (h *accountNumberHandlerImpl) DepositHandler(w http.ResponseWriter, r *http
 		return
 	}
 
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
 	// Validate request input using go-playground/validator
 	if err = h.validation.Struct(request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -84,7 +92,7 @@ func (h *accountNumberHandlerImpl) DepositHandler(w http.ResponseWriter, r *http
 	h.wg.Add(1)
 	go func() {
 		defer h.wg.Done()
-		accountNumberResponse, err := h.accountNumberServiceImpl.DepositService(request)
+		accountNumberResponse, err := h.accountNumberServiceImpl.DepositService(ctx, request)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -111,6 +119,9 @@ func (h *accountNumberHandlerImpl) CashoutHandler(w http.ResponseWriter, r *http
 		return
 	}
 
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
 	if err = h.validation.Struct(request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -124,7 +135,7 @@ func (h *accountNumberHandlerImpl) CashoutHandler(w http.ResponseWriter, r *http
 	h.wg.Add(1)
 	go func() {
 		defer h.wg.Done()
-		accountNumberResponse, err := h.accountNumberServiceImpl.CashoutService(request)
+		accountNumberResponse, err := h.accountNumberServiceImpl.CashoutService(ctx, request)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}

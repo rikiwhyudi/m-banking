@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"context"
 	dto "e-wallet/dto/result"
 	"e-wallet/service"
 	"encoding/json"
 	"net/http"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -32,13 +34,16 @@ func (h *transactionHandlerImpl) GetTransactionHandler(w http.ResponseWriter, r 
 		return
 	}
 
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
 	h.wg.Add(1)
 	go func() {
 		defer h.wg.Done()
-		transactionResponse, err := h.transactionServiceImpl.GetTransactionService(accountNumber)
+		transactionResponse, err := h.transactionServiceImpl.GetTransactionService(ctx, accountNumber)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}

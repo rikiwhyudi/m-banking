@@ -1,14 +1,12 @@
 package internal
 
 import (
-	"context"
 	transactiondto "e-wallet/dto/mutasi"
 	"e-wallet/models"
 	"e-wallet/pkg/postgresql"
 	"e-wallet/repositories"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -32,10 +30,7 @@ func (c *amqpChannel) ConsumeMessage(queueName string) {
 		fmt.Printf("failed to declare queue: %s\n", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	msgs, err := c.ch.ConsumeWithContext(ctx,
+	msgs, err := c.ch.Consume(
 		queueName,
 		"",
 		true,
