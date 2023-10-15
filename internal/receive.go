@@ -1,12 +1,12 @@
 package internal
 
 import (
-	transactiondto "e-wallet/dto/mutasi"
-	"e-wallet/models"
-	"e-wallet/pkg/postgresql"
-	"e-wallet/repositories"
 	"encoding/json"
 	"fmt"
+	transactiondto "m-banking/dto/mutasi"
+	"m-banking/models"
+	"m-banking/pkg/postgresql"
+	"m-banking/repositories"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )

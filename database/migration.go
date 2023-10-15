@@ -1,9 +1,9 @@
 package database
 
 import (
-	"e-wallet/models"
-	"e-wallet/pkg/postgresql"
 	"fmt"
+	"m-banking/models"
+	"m-banking/pkg/postgresql"
 )
 
 func RunMigration() {

@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"context"
-	"e-wallet/models"
+	"m-banking/models"
 
 	"gorm.io/gorm"
 )
@@ -18,7 +18,7 @@ func (r *repository) RegisterCustomerRepository(ctx context.Context, customer mo
 	case <-ctx.Done():
 		return customer, ctx.Err()
 	default:
-		tx := r.db.Begin()
+		tx := r.db.WithContext(ctx).Begin()
 
 		defer func() {
 			if r := recover(); r != nil {
@@ -37,15 +37,13 @@ func (r *repository) RegisterCustomerRepository(ctx context.Context, customer mo
 			return customer, err
 		}
 
-		// accountNumber.CustomerID = customer.ID
-
 		err = tx.Create(&accountNumber).Error
 		if err != nil {
 			tx.Rollback()
 			return customer, err
 		}
 
-		err = tx.Model(&customer).Preload("AccountNumber").First(&customer).Error
+		err = tx.Preload("AccountNumber").First(&customer).Error
 		if err != nil {
 			tx.Rollback()
 			return customer, err
@@ -60,4 +58,41 @@ func (r *repository) RegisterCustomerRepository(ctx context.Context, customer mo
 
 		return customer, err
 	}
+}
+
+func (r *repository) GetCustomerRepository(ctx context.Context, id int) (models.Customer, error) {
+	var err error
+	var customer models.Customer
+
+	select {
+	case <-ctx.Done():
+		return customer, err
+	default:
+		tx := r.db.WithContext(ctx).Begin()
+
+		defer func() {
+			if r := recover(); r != nil {
+				tx.Rollback()
+				return
+			}
+		}()
+
+		if tx.Error != nil {
+			return customer, tx.Error
+		}
+
+		err = tx.First(&customer, "id=?", id).Error
+		if err != nil {
+			return customer, err
+		}
+
+		err = tx.Commit().Error
+		if err != nil {
+			tx.Rollback()
+			return customer, err
+		}
+
+		return customer, err
+	}
+
 }

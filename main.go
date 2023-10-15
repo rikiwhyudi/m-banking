@@ -1,11 +1,11 @@
 package main
 
 import (
-	"e-wallet/database"
-	"e-wallet/pkg/postgresql"
-	"e-wallet/pkg/rabbitmq"
-	"e-wallet/routes"
 	"fmt"
+	"m-banking/database"
+	"m-banking/pkg/postgresql"
+	"m-banking/pkg/rabbitmq"
+	"m-banking/routes"
 	"net/http"
 	"os"
 

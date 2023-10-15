@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	customerdto "e-wallet/dto/nasabah"
+	customerdto "m-banking/dto/nasabah"
 )
 
 type CustomerService interface {

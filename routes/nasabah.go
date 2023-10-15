@@ -1,10 +1,10 @@
 package routes
 
 import (
-	"e-wallet/handlers"
-	"e-wallet/pkg/postgresql"
-	"e-wallet/repositories"
-	"e-wallet/service"
+	"m-banking/handlers"
+	"m-banking/pkg/postgresql"
+	"m-banking/repositories"
+	"m-banking/service"
 
 	"github.com/gorilla/mux"
 )

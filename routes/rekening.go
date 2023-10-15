@@ -1,10 +1,10 @@
 package routes
 
 import (
-	"e-wallet/handlers"
-	"e-wallet/pkg/postgresql"
-	"e-wallet/repositories"
-	"e-wallet/service"
+	"m-banking/handlers"
+	"m-banking/pkg/postgresql"
+	"m-banking/repositories"
+	"m-banking/service"
 
 	"github.com/gorilla/mux"
 )
@@ -19,4 +19,5 @@ func AccountNumberRoutes(r *mux.Router) {
 	r.HandleFunc("/saldo/{id}", h.GetBalanceHandler).Methods("GET")
 	r.HandleFunc("/tabung", h.DepositHandler).Methods("PATCH")
 	r.HandleFunc("/tarik", h.CashoutHandler).Methods("PATCH")
+	r.HandleFunc("/transfer", h.TransferHandler).Methods("PATCH")
 }

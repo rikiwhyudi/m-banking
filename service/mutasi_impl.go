@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"e-wallet/models"
-	"e-wallet/repositories"
+	"m-banking/models"
+	"m-banking/repositories"
 )
 
 type transactionServiceImpl struct {

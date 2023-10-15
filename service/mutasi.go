@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"e-wallet/models"
+	"m-banking/models"
 )
 
 type TransactionService interface {
