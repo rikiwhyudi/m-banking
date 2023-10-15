@@ -26,7 +26,8 @@ func DatabaseInit() {
 		if err != nil {
 			panic(err)
 		}
+
+		fmt.Println("connected to PostgreSQL Database...")
 	}
 
-	fmt.Println("connected to PostgreSQL Database...")
 }
