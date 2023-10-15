@@ -26,9 +26,8 @@ func RabbitMqInit() {
 			panic(err)
 		}
 
+		fmt.Println("connected to RabbitMQ Management...")
 	}
-
-	fmt.Println("connected to RabbitMQ Management...")
 
 	RabbitMQChannel, err = connection.Channel()
 	if err != nil {
