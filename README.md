@@ -1,4 +1,4 @@
-## Simple boilerplate m-banking rest-api with go..**
+## Simple boilerplate m-banking rest-api with go..
 
 ### `docker-compose up --build`
 Runs the app in the docker-compose.\
