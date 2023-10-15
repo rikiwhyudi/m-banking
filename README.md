@@ -1,8 +1,8 @@
-## Simple boilerplate m-banking rest-api with go..
+## Simple boilerplate m-banking rest-api with go
 
 ### `docker-compose up --build`
-Runs the app in the docker-compose.\
-Server start at [http://localhost:8080](http://localhost:8080).
+Run and build the app with docker-compose.\
+Server started at [http://localhost:8080](http://localhost:8080).
 
 ### `install docker`
 Install docker here [https://www.docker.com/get-started/](https://www.docker.com/get-started/)
