@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"context"
-	customerdto "e-wallet/dto/nasabah"
-	dto "e-wallet/dto/result"
-	"e-wallet/service"
 	"encoding/json"
+	customerdto "m-banking/dto/nasabah"
+	dto "m-banking/dto/result"
+	"m-banking/service"
 	"net/http"
 	"sync"
 	"time"

@@ -1,13 +1,13 @@
 package internal
 
 import (
-	"e-wallet/repositories"
+	"m-banking/repositories"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type MessageBroker interface {
-	PublishMessage(accountNumber int, TransactionCode string, amount float64, queueName string) error
+	PublishMessage(accountNumberID int, transactionCode string, amount float64, queueName string) error
 	ConsumeMessage(queueName string)
 }
 

@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"context"
-	accNumberdto "e-wallet/dto/rekening"
-	dto "e-wallet/dto/result"
-	"e-wallet/service"
 	"encoding/json"
+	accNumberdto "m-banking/dto/rekening"
+	dto "m-banking/dto/result"
+	"m-banking/service"
 	"net/http"
 	"strconv"
 	"sync"
@@ -136,6 +136,50 @@ func (h *accountNumberHandlerImpl) CashoutHandler(w http.ResponseWriter, r *http
 	go func() {
 		defer h.wg.Done()
 		accountNumberResponse, err := h.accountNumberServiceImpl.CashoutService(ctx, request)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+			json.NewEncoder(w).Encode(response)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		response := dto.SuccessResult{Code: http.StatusOK, Data: accountNumberResponse}
+		json.NewEncoder(w).Encode(response)
+	}()
+
+	h.wg.Wait()
+}
+
+func (h *accountNumberHandlerImpl) TransferHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	var request accNumberdto.TransferBalanceRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	if err = h.validation.Struct(request); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	h.wg.Add(1)
+	go func() {
+		defer h.wg.Done()
+		accountNumberResponse, err := h.accountNumberServiceImpl.TransferService(ctx, request)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}

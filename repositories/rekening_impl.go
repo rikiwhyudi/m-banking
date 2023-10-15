@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"context"
-	"e-wallet/models"
+	"m-banking/models"
 
 	"gorm.io/gorm"
 )
@@ -119,4 +119,46 @@ func (r *repository) CashoutRepository(ctx context.Context, cashout models.Accou
 
 		return cashout, err
 	}
+}
+
+func (r *repository) TransferRepository(ctx context.Context, sender models.AccountNumber, receiver models.AccountNumber) (models.AccountNumber, error) {
+	var err error
+
+	select {
+	case <-ctx.Done():
+		return sender, ctx.Err()
+	default:
+		tx := r.db.WithContext(ctx).Begin()
+
+		defer func() {
+			if r := recover(); r != nil {
+				tx.Rollback()
+			}
+		}()
+
+		if tx.Error != nil {
+			return sender, tx.Error
+		}
+
+		err = tx.Save(&sender).Error
+		if err != nil {
+			tx.Rollback()
+			return sender, err
+		}
+
+		err = tx.Save(&receiver).Error
+		if err != nil {
+			tx.Rollback()
+			return receiver, err
+		}
+
+		err = tx.Commit().Error
+		if err != nil {
+			tx.Rollback()
+			return sender, err
+		}
+
+		return sender, err
+	}
+
 }

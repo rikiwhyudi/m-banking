@@ -2,8 +2,8 @@ package internal
 
 import (
 	"context"
-	transactiondto "e-wallet/dto/mutasi"
 	"encoding/json"
+	transactiondto "m-banking/dto/mutasi"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -13,7 +13,7 @@ func NewPublisherImpl(ch *amqp.Channel) MessageBroker {
 	return &amqpChannel{ch, nil}
 }
 
-func (p *amqpChannel) PublishMessage(accountNumber int, TransactionCode string, amount float64, queueName string) error {
+func (p *amqpChannel) PublishMessage(accountNumberID int, transactionCode string, amount float64, queueName string) error {
 
 	queue, err := p.ch.QueueDeclare(
 		queueName,
@@ -29,8 +29,8 @@ func (p *amqpChannel) PublishMessage(accountNumber int, TransactionCode string, 
 	}
 
 	mutasi := transactiondto.TransactionRequest{
-		AccountNumberID: accountNumber,
-		TransactionCode: TransactionCode,
+		AccountNumberID: accountNumberID,
+		TransactionCode: transactionCode,
 		Amount:          amount,
 		Date:            time.Now(),
 	}

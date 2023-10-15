@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	customerdto "e-wallet/dto/nasabah"
-	"e-wallet/models"
-	"e-wallet/repositories"
+	customerdto "m-banking/dto/nasabah"
+	"m-banking/models"
+	"m-banking/repositories"
 	"time"
 )
 

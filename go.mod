@@ -1,4 +1,4 @@
-module e-wallet
+module m-banking
 
 go 1.19
 

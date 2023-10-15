@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"context"
-	dto "e-wallet/dto/result"
-	"e-wallet/service"
 	"encoding/json"
+	dto "m-banking/dto/result"
+	"m-banking/service"
 	"net/http"
 	"strconv"
 	"sync"
