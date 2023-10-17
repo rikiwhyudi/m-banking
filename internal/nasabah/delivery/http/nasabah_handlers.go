@@ -17,11 +17,10 @@ type customerHandler struct {
 	customerUsecase usecase.CustomerUsecase
 	validation      *validator.Validate
 	wg              sync.WaitGroup
-	mu              sync.Mutex
 }
 
 func NewCustomerHandlerImpl(customerUsecase usecase.CustomerUsecase) *customerHandler {
-	return &customerHandler{customerUsecase, validator.New(), sync.WaitGroup{}, sync.Mutex{}}
+	return &customerHandler{customerUsecase, validator.New(), sync.WaitGroup{}}
 }
 
 func (h *customerHandler) RegisterCustomerHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,9 +45,6 @@ func (h *customerHandler) RegisterCustomerHandler(w http.ResponseWriter, r *http
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
-	h.mu.Lock()
-	defer h.mu.Unlock()
 
 	h.wg.Add(1)
 	go func() {
