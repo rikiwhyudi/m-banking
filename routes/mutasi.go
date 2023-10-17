@@ -16,6 +16,6 @@ func TransactionRoutes(r *mux.Router) {
 
 	h := http.NewTransactionHandlerImpl(transactionUsecase)
 
-	r.HandleFunc("/mutasi/{id}", h.GetTransactionHandler).Methods("GET")
+	r.HandleFunc("/mutasi/{id}", h.FindTransactionHandler).Methods("GET")
 
 }

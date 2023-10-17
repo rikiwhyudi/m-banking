@@ -16,7 +16,7 @@ func NewTransactionRepositoryImpl(db *gorm.DB) repository.TransactionRepository 
 	return &transactionRepository{db}
 }
 
-func (r *transactionRepository) GetTransactionRepository(ctx context.Context, accountNumber int) ([]models.Transaction, error) {
+func (r *transactionRepository) FindTransactionRepository(ctx context.Context, accountNumber int) ([]models.Transaction, error) {
 	var err error
 	var transactions []models.Transaction
 
