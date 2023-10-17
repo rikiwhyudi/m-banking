@@ -1,10 +1,10 @@
 package routes
 
 import (
+	"m-banking/internal/rekening/delivery/http"
+	"m-banking/internal/rekening/repository"
+	"m-banking/internal/rekening/usecase"
 	"m-banking/pkg/postgresql"
-	"m-banking/rekening/delivery/http"
-	"m-banking/rekening/repository"
-	"m-banking/rekening/usecase"
 
 	"github.com/gorilla/mux"
 )

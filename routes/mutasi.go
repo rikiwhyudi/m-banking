@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"m-banking/mutasi/delivery/http"
-	"m-banking/mutasi/repository"
-	"m-banking/mutasi/usecase"
+	"m-banking/internal/mutasi/delivery/http"
+	"m-banking/internal/mutasi/repository"
+	"m-banking/internal/mutasi/usecase"
 	"m-banking/pkg/postgresql"
 
 	"github.com/gorilla/mux"

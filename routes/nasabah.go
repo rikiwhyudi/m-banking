@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"m-banking/nasabah/delivery/http"
-	"m-banking/nasabah/repository"
-	"m-banking/nasabah/usecase"
+	"m-banking/internal/nasabah/delivery/http"
+	"m-banking/internal/nasabah/repository"
+	"m-banking/internal/nasabah/usecase"
 	"m-banking/pkg/postgresql"
 
 	"github.com/gorilla/mux"
