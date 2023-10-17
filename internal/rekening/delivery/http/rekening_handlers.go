@@ -31,7 +31,7 @@ func (h *accountNumberHandler) GetBalanceHandler(w http.ResponseWriter, r *http.
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	// Parse the accountNumber from the request
+	// Parse the accountNumber from the request.
 	accountNumber, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
