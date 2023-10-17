@@ -38,7 +38,7 @@ func (h *customerHandler) RegisterCustomerHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	// Validate request input using go-playground/validator
+	// Validate request input using go-playground/validator.
 	if err = h.validation.Struct(request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
