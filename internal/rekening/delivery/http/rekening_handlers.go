@@ -19,11 +19,10 @@ type accountNumberHandler struct {
 	accountNumberUsecase usecase.AccountNumberUsecase
 	validation           *validator.Validate
 	wg                   sync.WaitGroup
-	mu                   sync.Mutex
 }
 
 func NewAccountNumberHandlerImpl(accountNumberUsecase usecase.AccountNumberUsecase) *accountNumberHandler {
-	return &accountNumberHandler{accountNumberUsecase, validator.New(), sync.WaitGroup{}, sync.Mutex{}}
+	return &accountNumberHandler{accountNumberUsecase, validator.New(), sync.WaitGroup{}}
 }
 
 func (h *accountNumberHandler) GetBalanceHandler(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +31,7 @@ func (h *accountNumberHandler) GetBalanceHandler(w http.ResponseWriter, r *http.
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	// Parse the accountNumber from the request
+	// Parse the accountNumber from the request.
 	accountNumber, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -40,9 +39,6 @@ func (h *accountNumberHandler) GetBalanceHandler(w http.ResponseWriter, r *http.
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
-	h.mu.Lock()
-	defer h.mu.Unlock()
 
 	h.wg.Add(1)
 	go func() {
@@ -86,9 +82,6 @@ func (h *accountNumberHandler) DepositHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	h.mu.Lock()
-	defer h.mu.Unlock()
-
 	h.wg.Add(1)
 	go func() {
 		defer h.wg.Done()
@@ -128,9 +121,6 @@ func (h *accountNumberHandler) CashoutHandler(w http.ResponseWriter, r *http.Req
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
-	h.mu.Lock()
-	defer h.mu.Unlock()
 
 	h.wg.Add(1)
 	go func() {
@@ -172,9 +162,6 @@ func (h *accountNumberHandler) TransferHandler(w http.ResponseWriter, r *http.Re
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
-	h.mu.Lock()
-	defer h.mu.Unlock()
 
 	h.wg.Add(1)
 	go func() {
