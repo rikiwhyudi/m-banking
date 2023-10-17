@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"m-banking/database"
+	receive "m-banking/internal/infrastructure/rabbitmq"
 	"m-banking/pkg/postgresql"
 	"m-banking/pkg/rabbitmq"
 	"m-banking/routes"
@@ -28,7 +29,7 @@ func main() {
 	rabbitmq.RabbitMqInit()
 
 	//run RabbitMq consumer
-	rabbitmq.RabbitMqConsumer()
+	receive.RabbitMqConsumer()
 
 	// initialize Mux Router connection
 	r := mux.NewRouter()
