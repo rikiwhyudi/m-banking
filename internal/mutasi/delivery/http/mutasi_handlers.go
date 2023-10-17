@@ -16,11 +16,10 @@ import (
 type transactionHander struct {
 	transactionUsecase usecase.TransactionUsecase
 	wg                 sync.WaitGroup
-	mu                 sync.Mutex
 }
 
 func NewTransactionHandlerImpl(transactionUsecase usecase.TransactionUsecase) *transactionHander {
-	return &transactionHander{transactionUsecase, sync.WaitGroup{}, sync.Mutex{}}
+	return &transactionHander{transactionUsecase, sync.WaitGroup{}}
 }
 
 func (h *transactionHander) GetTransactionHandler(w http.ResponseWriter, r *http.Request) {
@@ -36,9 +35,6 @@ func (h *transactionHander) GetTransactionHandler(w http.ResponseWriter, r *http
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
-	h.mu.Lock()
-	defer h.mu.Unlock()
 
 	h.wg.Add(1)
 	go func() {
