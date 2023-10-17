@@ -6,5 +6,5 @@ import (
 )
 
 type TransactionUsecase interface {
-	GetTransactionUsecase(ctx context.Context, accountNumber int) ([]models.Transaction, error)
+	FindTransactionUsecase(ctx context.Context, accountNumber int) ([]models.Transaction, error)
 }
