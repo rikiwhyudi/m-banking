@@ -1,20 +1,20 @@
 package routes
 
 import (
-	"m-banking/handlers"
+	"m-banking/mutasi/delivery/http"
+	"m-banking/mutasi/repository"
+	"m-banking/mutasi/usecase"
 	"m-banking/pkg/postgresql"
-	"m-banking/repositories"
-	"m-banking/service"
 
 	"github.com/gorilla/mux"
 )
 
 func TransactionRoutes(r *mux.Router) {
 
-	transactionRepository := repositories.NewRepositoryTransactionImpl(postgresql.DB)
-	transactionService := service.NewServiceTransactionImpl(transactionRepository)
+	transactionRepository := repository.NewTransactionRepositoryImpl(postgresql.DB)
+	transactionUsecase := usecase.NewTransactionUsecaseImpl(transactionRepository)
 
-	h := handlers.NewHandlerTransactionImpl(transactionService)
+	h := http.NewTransactionHandlerImpl(transactionUsecase)
 
 	r.HandleFunc("/mutasi/{id}", h.GetTransactionHandler).Methods("GET")
 

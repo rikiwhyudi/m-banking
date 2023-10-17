@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"m-banking/models"
+	"m-banking/domain/models"
 	"m-banking/pkg/postgresql"
 )
 

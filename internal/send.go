@@ -13,7 +13,7 @@ func NewPublisherImpl(ch *amqp.Channel) MessageBroker {
 	return &amqpChannel{ch, nil}
 }
 
-func (p *amqpChannel) PublishMessage(accountNumberID int, transactionCode string, amount float64, queueName string) error {
+func (p *amqpChannel) PublishMessage(ctx context.Context, accountNumberID int, transactionCode string, amount float64, queueName string) error {
 
 	queue, err := p.ch.QueueDeclare(
 		queueName,
@@ -39,9 +39,6 @@ func (p *amqpChannel) PublishMessage(accountNumberID int, transactionCode string
 	if err != nil {
 		return err
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
 
 	err = p.ch.PublishWithContext(ctx,
 		"",

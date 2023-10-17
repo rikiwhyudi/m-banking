@@ -1,11 +1,11 @@
-package handlers
+package http
 
 import (
 	"context"
 	"encoding/json"
+	"m-banking/domain/usecase"
 	accNumberdto "m-banking/dto/rekening"
 	dto "m-banking/dto/result"
-	"m-banking/service"
 	"net/http"
 	"strconv"
 	"sync"
@@ -15,19 +15,22 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type accountNumberHandlerImpl struct {
-	accountNumberServiceImpl service.AccountNumberService
-	validation               *validator.Validate
-	wg                       sync.WaitGroup
-	mu                       sync.Mutex
+type accountNumberHandler struct {
+	accountNumberUsecase usecase.AccountNumberUsecase
+	validation           *validator.Validate
+	wg                   sync.WaitGroup
+	mu                   sync.Mutex
 }
 
-func NewHandlerAccountNumberImpl(accountNumberServiceImpl service.AccountNumberService) *accountNumberHandlerImpl {
-	return &accountNumberHandlerImpl{accountNumberServiceImpl, validator.New(), sync.WaitGroup{}, sync.Mutex{}}
+func NewAccountNumberHandlerImpl(accountNumberUsecase usecase.AccountNumberUsecase) *accountNumberHandler {
+	return &accountNumberHandler{accountNumberUsecase, validator.New(), sync.WaitGroup{}, sync.Mutex{}}
 }
 
-func (h *accountNumberHandlerImpl) GetBalanceHandler(w http.ResponseWriter, r *http.Request) {
+func (h *accountNumberHandler) GetBalanceHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
 
 	// Parse the accountNumber from the request
 	accountNumber, err := strconv.Atoi(mux.Vars(r)["id"])
@@ -38,16 +41,13 @@ func (h *accountNumberHandlerImpl) GetBalanceHandler(w http.ResponseWriter, r *h
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
 	h.wg.Add(1)
 	go func() {
 		defer h.wg.Done()
-		accountNumberResponse, err := h.accountNumberServiceImpl.GetBalanceService(ctx, accountNumber)
+		accountNumberResponse, err := h.accountNumberUsecase.GetBalanceUsecase(ctx, accountNumber)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -63,8 +63,11 @@ func (h *accountNumberHandlerImpl) GetBalanceHandler(w http.ResponseWriter, r *h
 	h.wg.Wait()
 }
 
-func (h *accountNumberHandlerImpl) DepositHandler(w http.ResponseWriter, r *http.Request) {
+func (h *accountNumberHandler) DepositHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
 
 	var request accNumberdto.AccountNumberRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -74,9 +77,6 @@ func (h *accountNumberHandlerImpl) DepositHandler(w http.ResponseWriter, r *http
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
 
 	// Validate request input using go-playground/validator
 	if err = h.validation.Struct(request); err != nil {
@@ -92,7 +92,7 @@ func (h *accountNumberHandlerImpl) DepositHandler(w http.ResponseWriter, r *http
 	h.wg.Add(1)
 	go func() {
 		defer h.wg.Done()
-		accountNumberResponse, err := h.accountNumberServiceImpl.DepositService(ctx, request)
+		accountNumberResponse, err := h.accountNumberUsecase.DepositUsecase(ctx, request)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -107,8 +107,11 @@ func (h *accountNumberHandlerImpl) DepositHandler(w http.ResponseWriter, r *http
 	h.wg.Wait()
 }
 
-func (h *accountNumberHandlerImpl) CashoutHandler(w http.ResponseWriter, r *http.Request) {
+func (h *accountNumberHandler) CashoutHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
 
 	var request accNumberdto.AccountNumberRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -119,9 +122,6 @@ func (h *accountNumberHandlerImpl) CashoutHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-
 	if err = h.validation.Struct(request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -135,7 +135,7 @@ func (h *accountNumberHandlerImpl) CashoutHandler(w http.ResponseWriter, r *http
 	h.wg.Add(1)
 	go func() {
 		defer h.wg.Done()
-		accountNumberResponse, err := h.accountNumberServiceImpl.CashoutService(ctx, request)
+		accountNumberResponse, err := h.accountNumberUsecase.CashoutUsecase(ctx, request)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -151,8 +151,11 @@ func (h *accountNumberHandlerImpl) CashoutHandler(w http.ResponseWriter, r *http
 	h.wg.Wait()
 }
 
-func (h *accountNumberHandlerImpl) TransferHandler(w http.ResponseWriter, r *http.Request) {
+func (h *accountNumberHandler) TransferHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
 
 	var request accNumberdto.TransferBalanceRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -162,9 +165,6 @@ func (h *accountNumberHandlerImpl) TransferHandler(w http.ResponseWriter, r *htt
 		json.NewEncoder(w).Encode(response)
 		return
 	}
-
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
 
 	if err = h.validation.Struct(request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -179,7 +179,7 @@ func (h *accountNumberHandlerImpl) TransferHandler(w http.ResponseWriter, r *htt
 	h.wg.Add(1)
 	go func() {
 		defer h.wg.Done()
-		accountNumberResponse, err := h.accountNumberServiceImpl.TransferService(ctx, request)
+		accountNumberResponse, err := h.accountNumberUsecase.TransferUsecase(ctx, request)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}

@@ -3,16 +3,16 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
+	"m-banking/domain/models"
 	transactiondto "m-banking/dto/mutasi"
-	"m-banking/models"
+	"m-banking/mutasi/repository"
 	"m-banking/pkg/postgresql"
-	"m-banking/repositories"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func NewConsumerImpl(ch *amqp.Channel) MessageBroker {
-	return &amqpChannel{ch, repositories.NewRepositoryTransactionImpl(postgresql.DB)}
+	return &amqpChannel{ch, repository.NewTransactionRepositoryImpl(postgresql.DB)}
 }
 
 func (c *amqpChannel) ConsumeMessage(queueName string) {

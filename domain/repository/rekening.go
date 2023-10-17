@@ -1,8 +1,8 @@
-package repositories
+package repository
 
 import (
 	"context"
-	"m-banking/models"
+	models "m-banking/domain/models"
 )
 
 type AccountNumberRepository interface {
