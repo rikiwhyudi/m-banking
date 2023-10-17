@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"context"
-	models "m-banking/domain/models"
+	"m-banking/domain/models"
 )
 
 type TransactionUsecase interface {

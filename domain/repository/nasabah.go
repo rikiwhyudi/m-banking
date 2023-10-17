@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	models "m-banking/domain/models"
+	"m-banking/domain/models"
 )
 
 type CustomerRepository interface {
