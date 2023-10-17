@@ -2,9 +2,7 @@ package repository
 
 import (
 	"context"
-
 	"m-banking/models"
->>>>>>> clean-arch:interfaces/repository/mutasi.go
 )
 
 type TransactionRepository interface {
