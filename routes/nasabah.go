@@ -1,20 +1,20 @@
 package routes
 
 import (
-	"m-banking/handlers"
+	"m-banking/nasabah/delivery/http"
+	"m-banking/nasabah/repository"
+	"m-banking/nasabah/usecase"
 	"m-banking/pkg/postgresql"
-	"m-banking/repositories"
-	"m-banking/service"
 
 	"github.com/gorilla/mux"
 )
 
 func CustomerRoutes(r *mux.Router) {
 
-	customerRepository := repositories.NewRepositoryCustomerImpl(postgresql.DB)
-	customerService := service.NewServiceCustomerImpl(customerRepository)
+	customerRepository := repository.NewCustomerRepositoryImpl(postgresql.DB)
+	customerUsecase := usecase.NewCustomerUsecaseImpl(customerRepository)
 
-	h := handlers.NewHanlderCustomerImpl(customerService)
+	h := http.NewCustomerHandlerImpl(customerUsecase)
 
 	r.HandleFunc("/daftar", h.RegisterCustomerHandler).Methods("POST")
 }

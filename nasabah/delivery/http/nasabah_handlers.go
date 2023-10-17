@@ -1,11 +1,11 @@
-package handlers
+package http
 
 import (
 	"context"
 	"encoding/json"
+	"m-banking/domain/usecase"
 	customerdto "m-banking/dto/nasabah"
 	dto "m-banking/dto/result"
-	"m-banking/service"
 	"net/http"
 	"sync"
 	"time"
@@ -13,19 +13,22 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type customerHandlerImpl struct {
-	customerServiceImpl service.CustomerService
-	validation          *validator.Validate
-	wg                  sync.WaitGroup
-	mu                  sync.Mutex
+type customerHandler struct {
+	customerUsecase usecase.CustomerUsecase
+	validation      *validator.Validate
+	wg              sync.WaitGroup
+	mu              sync.Mutex
 }
 
-func NewHanlderCustomerImpl(customerServiceImpl service.CustomerService) *customerHandlerImpl {
-	return &customerHandlerImpl{customerServiceImpl, validator.New(), sync.WaitGroup{}, sync.Mutex{}}
+func NewCustomerHandlerImpl(customerUsecase usecase.CustomerUsecase) *customerHandler {
+	return &customerHandler{customerUsecase, validator.New(), sync.WaitGroup{}, sync.Mutex{}}
 }
 
-func (h *customerHandlerImpl) RegisterCustomerHandler(w http.ResponseWriter, r *http.Request) {
+func (h *customerHandler) RegisterCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
 
 	var request customerdto.CustomerRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -35,9 +38,6 @@ func (h *customerHandlerImpl) RegisterCustomerHandler(w http.ResponseWriter, r *
 		json.NewDecoder(r.Body).Decode(&response)
 		return
 	}
-
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
 
 	// Validate request input using go-playground/validator
 	if err = h.validation.Struct(request); err != nil {
@@ -53,7 +53,7 @@ func (h *customerHandlerImpl) RegisterCustomerHandler(w http.ResponseWriter, r *
 	h.wg.Add(1)
 	go func() {
 		defer h.wg.Done()
-		customerResponse, err := h.customerServiceImpl.RegisterCustomerService(ctx, request)
+		customerResponse, err := h.customerUsecase.RegisterCustomerUsecase(ctx, request)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
