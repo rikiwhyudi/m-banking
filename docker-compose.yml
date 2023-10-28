@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-  rest-api:
+  rest_api:
     container_name: tabungan_container
     image: rest-api:1.0.0
     build:
