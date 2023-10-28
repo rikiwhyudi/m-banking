@@ -24,4 +24,4 @@ Install docker here [https://www.docker.com/get-started/](https://www.docker.com
 - docker
 
 ## Learn More
-maybe i will update soon to handle cache with redis if needed in the future and implement ocr to scan card id and many other features..
+Other reference: [https://github.com/LordMoMA/Hexagonal-Architecture](https://github.com/LordMoMA/Hexagonal-Architecture)
