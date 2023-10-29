@@ -23,5 +23,44 @@ Install docker here [https://www.docker.com/get-started/](https://www.docker.com
 - rabbitmq
 - docker
 
+# Structure of the Project
+```md
+└── m-banking
+   ├── cmd
+   │   └── main.go
+   ├── pkg
+   ├── routes
+   ├── docker-compose.yml
+   ├── Dockerfile
+   ├── go.mod
+   ├── go.sum
+   ├── .env
+   └── internal
+       ├── adapters
+       │   ├── cache
+       │   │   └── cache.go
+       │   │
+       │   ├── delivery/http
+       │   │   └── handler.go
+       │   │
+       │   └── repository
+       │       └── repository.go
+       │
+       ├── core
+       │   ├── domain/models
+       │   │   └── model.go
+       │   │   
+       │   ├── ports
+       │   │   └── ports.go
+       │   │   
+       │   └── usecase
+       │       └── usecase.go
+       └── dto
+       │ 
+       └── infrastructure
+       │ 
+       └── migrations
+```
+
 ## Learn More
 Other reference: [https://github.com/LordMoMA/Hexagonal-Architecture](https://github.com/LordMoMA/Hexagonal-Architecture)
