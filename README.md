@@ -37,8 +37,6 @@ Install docker here [https://www.docker.com/get-started/](https://www.docker.com
    ├── .env
    └── internal
        ├── adapters
-       │   ├── cache
-       │   │   └── cache.go
        │   │
        │   ├── delivery/http
        │   │   └── handler.go
