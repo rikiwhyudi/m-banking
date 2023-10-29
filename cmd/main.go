@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"m-banking/internal/infrastructure"
 	"m-banking/internal/migrations"
-	databaseInit "m-banking/pkg/database/sql"
+	postgresql "m-banking/pkg/database/sql"
 	"m-banking/pkg/rabbitmq"
 	"m-banking/routes"
 	"net/http"
@@ -23,7 +23,7 @@ func main() {
 	}
 
 	// initialize DB connection
-	databaseInit.PostgreSQL()
+	postgresql.DatabaseInit()
 
 	// initialize RabbitMQ connection
 	rabbitmq.RabbitMqInit()
