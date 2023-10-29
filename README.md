@@ -23,7 +23,7 @@ Install docker here [https://www.docker.com/get-started/](https://www.docker.com
 - rabbitmq
 - docker
 
-# Structure of the Project
+### Structure of the Project
 ```md
 └── m-banking
    ├── cmd
