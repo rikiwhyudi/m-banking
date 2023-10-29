@@ -8,7 +8,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func PostgreSQL() {
+var DB *gorm.DB
+
+func DatabaseInit() {
 	var err error
 
 	POSTGRES_HOST := os.Getenv("POSTGRES_HOST")

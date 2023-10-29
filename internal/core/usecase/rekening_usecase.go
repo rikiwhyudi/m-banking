@@ -5,18 +5,19 @@ import (
 	"fmt"
 	"m-banking/internal/core/ports"
 	"m-banking/internal/dto"
+	"m-banking/pkg/rabbitmq"
 	"sync"
+	"time"
 )
 
 type accountNumberUsecaseImpl struct {
 	accountNumberRepository ports.AccountNumberRepository
 	customerRepository      ports.CustomerRepository
-	publisher               ports.Publisher
 	wg                      sync.WaitGroup
 }
 
-func NewAccountNumberUsecase(accountNumberRepository ports.AccountNumberRepository, customerRepository ports.CustomerRepository, publisher ports.Publisher) ports.AccountNumberUsecase {
-	return &accountNumberUsecaseImpl{accountNumberRepository, customerRepository, publisher, sync.WaitGroup{}}
+func NewAccountNumberUsecase(accountNumberRepository ports.AccountNumberRepository, customerRepository ports.CustomerRepository) ports.AccountNumberUsecase {
+	return &accountNumberUsecaseImpl{accountNumberRepository, customerRepository, sync.WaitGroup{}}
 }
 
 func (u *accountNumberUsecaseImpl) GetBalanceUsecase(ctx context.Context, accountNumber int) (*dto.AccountNumberResponse, error) {
@@ -42,11 +43,18 @@ func (u *accountNumberUsecaseImpl) DepositUsecase(ctx context.Context, account d
 		return nil, err
 	}
 
+	message := dto.TransactionRequest{
+		AccountNumberID: deposit.ID,
+		TransactionCode: "D",
+		Amount:          account.Amount,
+		Date:            time.Now(),
+	}
+
 	var publishError error
 	u.wg.Add(1)
 	go func() {
 		defer u.wg.Done()
-		publishError = u.publisher.PublisherMessage(ctx, deposit.ID, "D", account.Amount, "deposit")
+		publishError = rabbitmq.PublishMessage(ctx, "deposit", message)
 	}()
 
 	u.wg.Wait()
@@ -82,11 +90,18 @@ func (u *accountNumberUsecaseImpl) CashoutUsecase(ctx context.Context, account d
 		return nil, fmt.Errorf("balance not enough: %v", cashout.Balance)
 	}
 
+	message := dto.TransactionRequest{
+		AccountNumberID: cashout.ID,
+		TransactionCode: "C",
+		Amount:          account.Amount,
+		Date:            time.Now(),
+	}
+
 	var publishError error
 	u.wg.Add(1)
 	go func() {
 		defer u.wg.Done()
-		publishError = u.publisher.PublisherMessage(ctx, cashout.ID, "C", account.Amount, "cashout")
+		publishError = rabbitmq.PublishMessage(ctx, "cashout", message)
 	}()
 
 	u.wg.Wait()
@@ -139,10 +154,18 @@ func (u *accountNumberUsecaseImpl) TransferUsecase(ctx context.Context, transfer
 	var publishError error
 	accountNumbersID := []int{send.ID, receive.ID}
 	for _, accountNumberID := range accountNumbersID {
+
+		message := dto.TransactionRequest{
+			AccountNumberID: accountNumberID,
+			TransactionCode: "T",
+			Amount:          transfer.Amount,
+			Date:            time.Now(),
+		}
+
 		u.wg.Add(1)
 		go func(accountNumberID int) {
 			defer u.wg.Done()
-			publishError = u.publisher.PublisherMessage(ctx, accountNumberID, "T", transfer.Amount, "transfer")
+			publishError = rabbitmq.PublishMessage(ctx, "transfer", message)
 		}(accountNumberID)
 	}
 
