@@ -73,6 +73,7 @@ func (u *authUsecaseImpl) LoginAuthUsecase(ctx context.Context, user dto.AuthReq
 	}
 
 	response := &dto.AuthLoginResponse{
+		ID:    data.ID,
 		Email: data.Email,
 		Role:  data.Role,
 		Token: token,
