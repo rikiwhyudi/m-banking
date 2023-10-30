@@ -9,10 +9,10 @@ import (
 )
 
 func NewTransactionRepository(db *gorm.DB) ports.TransactionRepository {
-	return &repositoriesImpl{db}
+	return &repository{db}
 }
 
-func (r *repositoriesImpl) FindTransactionRepository(ctx context.Context, accountNumber int) ([]models.Transaction, error) {
+func (r *repository) FindTransactionRepository(ctx context.Context, accountNumber int) ([]models.Transaction, error) {
 	var err error
 	var transactions []models.Transaction
 
@@ -51,7 +51,7 @@ func (r *repositoriesImpl) FindTransactionRepository(ctx context.Context, accoun
 	return transactions, err
 }
 
-func (r *repositoriesImpl) CreateTransactionReposity(transaction models.Transaction) (models.Transaction, error) {
+func (r *repository) CreateTransactionReposity(transaction models.Transaction) (models.Transaction, error) {
 	var err error
 
 	tx := r.db.Begin()

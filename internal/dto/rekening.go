@@ -6,7 +6,7 @@ type AccountNumberRequest struct {
 }
 
 type AccountNumberResponse struct {
-	ID            int     `json:"account_number_id"`
+	ID            int     `json:"id"`
 	AccountNumber int     `json:"account_number"`
 	Balance       float64 `json:"balance"`
 }

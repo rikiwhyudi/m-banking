@@ -14,9 +14,9 @@ func NewTransactionUsecase(transactionRepository ports.TransactionRepository) po
 	return &transactionUsecaseImpl{transactionRepository}
 }
 
-func (s *transactionUsecaseImpl) FindTransactionUsecase(ctx context.Context, accountNumber int) ([]models.Transaction, error) {
+func (u *transactionUsecaseImpl) FindTransactionUsecase(ctx context.Context, accountNumber int) ([]models.Transaction, error) {
 
-	response, err := s.transactionRepository.FindTransactionRepository(ctx, accountNumber)
+	response, err := u.transactionRepository.FindTransactionRepository(ctx, accountNumber)
 
 	if err != nil {
 		return nil, err
