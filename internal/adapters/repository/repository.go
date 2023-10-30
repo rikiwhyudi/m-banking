@@ -2,6 +2,6 @@ package repository
 
 import "gorm.io/gorm"
 
-type repositoriesImpl struct {
+type repository struct {
 	db *gorm.DB
 }

@@ -9,10 +9,10 @@ import (
 )
 
 func NewAccountNumberRepository(db *gorm.DB) ports.AccountNumberRepository {
-	return &repositoriesImpl{db}
+	return &repository{db}
 }
 
-func (r *repositoriesImpl) GetBalanceRepository(ctx context.Context, accountNumber int) (models.AccountNumber, error) {
+func (r *repository) GetBalanceRepository(ctx context.Context, accountNumber int) (models.AccountNumber, error) {
 	var err error
 	var account models.AccountNumber
 
@@ -44,7 +44,7 @@ func (r *repositoriesImpl) GetBalanceRepository(ctx context.Context, accountNumb
 	return account, err
 }
 
-func (r *repositoriesImpl) DepositRepository(ctx context.Context, deposit models.AccountNumber) (models.AccountNumber, error) {
+func (r *repository) DepositRepository(ctx context.Context, deposit models.AccountNumber) (models.AccountNumber, error) {
 	var err error
 
 	tx := r.db.WithContext(ctx).Begin()
@@ -76,7 +76,7 @@ func (r *repositoriesImpl) DepositRepository(ctx context.Context, deposit models
 	return deposit, err
 }
 
-func (r *repositoriesImpl) CashoutRepository(ctx context.Context, cashout models.AccountNumber) (models.AccountNumber, error) {
+func (r *repository) CashoutRepository(ctx context.Context, cashout models.AccountNumber) (models.AccountNumber, error) {
 	var err error
 
 	tx := r.db.WithContext(ctx).Begin()
@@ -107,7 +107,7 @@ func (r *repositoriesImpl) CashoutRepository(ctx context.Context, cashout models
 	return cashout, err
 }
 
-func (r *repositoriesImpl) TransferRepository(ctx context.Context, sender models.AccountNumber, receiver models.AccountNumber) (models.AccountNumber, error) {
+func (r *repository) TransferRepository(ctx context.Context, sender models.AccountNumber, receiver models.AccountNumber) (models.AccountNumber, error) {
 	var err error
 
 	tx := r.db.WithContext(ctx).Begin()

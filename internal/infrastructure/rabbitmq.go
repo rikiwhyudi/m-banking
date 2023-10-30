@@ -42,7 +42,7 @@ func RabbitMqConsumer() {
 						AccountNumberID: mutasi.AccountNumberID,
 						TransactionCode: mutasi.TransactionCode,
 						Amount:          mutasi.Amount,
-						Date:            mutasi.Date,
+						CreatedAt:       mutasi.CreatedAt,
 					}
 
 					response, err := repo.CreateTransactionReposity(transaction)

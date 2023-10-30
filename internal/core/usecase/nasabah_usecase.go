@@ -19,16 +19,17 @@ func NewCustomerUsecase(customerRepository ports.CustomerRepository) ports.Custo
 func (u *customerUsecaseImpl) RegisterCustomerUsecase(ctx context.Context, customer dto.CustomerRequest) (*dto.CustomerResponse, error) {
 
 	createCustomer := models.Customer{
-		ID:          int(time.Now().Unix()),
+		// ID:          int(time.Now().Unix()),
 		Name:        customer.Name,
 		Nik:         customer.Nik,
 		PhoneNumber: customer.PhoneNumber,
+		UserID:      customer.UserID,
 	}
 
 	createAccountNumber := models.AccountNumber{
 		AccountNumber: int(time.Now().UnixNano()),
-		CustomerID:    createCustomer.ID,
-		Balance:       0.00,
+		// CustomerID:    createCustomer.ID,
+		Balance: 0.00,
 	}
 
 	data, err := u.customerRepository.RegisterCustomerRepository(ctx, createCustomer, createAccountNumber)
@@ -41,7 +42,9 @@ func (u *customerUsecaseImpl) RegisterCustomerUsecase(ctx context.Context, custo
 		ID:            data.ID,
 		Name:          data.Name,
 		Nik:           data.Nik,
+		Email:         data.User.Email,
 		PhoneNumber:   data.PhoneNumber,
+		Status:        data.User.Role,
 		AccountNumber: data.AccountNumber,
 	}
 

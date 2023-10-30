@@ -8,6 +8,7 @@ import (
 
 func RunMigration() {
 	err := sql.DB.AutoMigrate(
+		&models.User{},
 		&models.Customer{},
 		&models.AccountNumber{},
 		&models.Transaction{},

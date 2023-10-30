@@ -47,7 +47,7 @@ func (u *accountNumberUsecaseImpl) DepositUsecase(ctx context.Context, account d
 		AccountNumberID: deposit.ID,
 		TransactionCode: "D",
 		Amount:          account.Amount,
-		Date:            time.Now(),
+		CreatedAt:       time.Now(),
 	}
 
 	var publishError error
@@ -94,7 +94,7 @@ func (u *accountNumberUsecaseImpl) CashoutUsecase(ctx context.Context, account d
 		AccountNumberID: cashout.ID,
 		TransactionCode: "C",
 		Amount:          account.Amount,
-		Date:            time.Now(),
+		CreatedAt:       time.Now(),
 	}
 
 	var publishError error
@@ -159,7 +159,7 @@ func (u *accountNumberUsecaseImpl) TransferUsecase(ctx context.Context, transfer
 			AccountNumberID: accountNumberID,
 			TransactionCode: "T",
 			Amount:          transfer.Amount,
-			Date:            time.Now(),
+			CreatedAt:       time.Now(),
 		}
 
 		u.wg.Add(1)

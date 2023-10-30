@@ -9,10 +9,10 @@ import (
 )
 
 func NewCustomerRepository(db *gorm.DB) ports.CustomerRepository {
-	return &repositoriesImpl{db}
+	return &repository{db}
 }
 
-func (r *repositoriesImpl) RegisterCustomerRepository(ctx context.Context, customer models.Customer, accountNumber models.AccountNumber) (models.Customer, error) {
+func (r *repository) RegisterCustomerRepository(ctx context.Context, customer models.Customer, accountNumber models.AccountNumber) (models.Customer, error) {
 	var err error
 
 	tx := r.db.WithContext(ctx).Begin()
@@ -34,13 +34,14 @@ func (r *repositoriesImpl) RegisterCustomerRepository(ctx context.Context, custo
 		return customer, err
 	}
 
+	accountNumber.CustomerID = customer.ID
 	err = tx.Create(&accountNumber).Error
 	if err != nil {
 		tx.Rollback()
 		return customer, err
 	}
 
-	err = tx.Preload("AccountNumber").First(&customer).Error
+	err = tx.Preload("AccountNumber").Preload("User").First(&customer).Error
 	if err != nil {
 		tx.Rollback()
 		return customer, err
@@ -56,7 +57,7 @@ func (r *repositoriesImpl) RegisterCustomerRepository(ctx context.Context, custo
 	return customer, err
 }
 
-func (r *repositoriesImpl) GetCustomerRepository(ctx context.Context, id int) (models.Customer, error) {
+func (r *repository) GetCustomerRepository(ctx context.Context, id int) (models.Customer, error) {
 	var err error
 	var customer models.Customer
 

@@ -7,5 +7,5 @@ type Transaction struct {
 	AccountNumberID int       `json:"-" gorm:"foreignKey:AccountNumberID"` // has many fields from account_number
 	TransactionCode string    `json:"transaction_code" gorm:"type: varchar(255)"`
 	Amount          float64   `json:"amount" gorm:"type: decimal(12,2)"`
-	Date            time.Time `json:"date" gorm:"type: date"`
+	CreatedAt       time.Time `json:"created_at"`
 }
