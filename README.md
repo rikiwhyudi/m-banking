@@ -27,6 +27,8 @@ Install docker here [https://www.docker.com/get-started/](https://www.docker.com
 ## `Structure of the Project`
 ```md
 └── m-banking
+    ├── cmd
+    │   └── main.go
     ├── internal
     │   ├── adapter
     │   │   ├── delivery
