@@ -2,8 +2,8 @@ package ports
 
 import (
 	"context"
+	"m-banking/internal/core/domain/dto"
 	"m-banking/internal/core/domain/models"
-	"m-banking/internal/dto"
 )
 
 type CustomerRepository interface {

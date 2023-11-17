@@ -3,8 +3,8 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"m-banking/internal/core/domain/dto"
 	"m-banking/internal/core/ports"
-	"m-banking/internal/dto"
 	"m-banking/pkg/rabbitmq"
 	"sync"
 	"time"

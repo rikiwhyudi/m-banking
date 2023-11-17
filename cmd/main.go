@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"m-banking/internal/infrastructure"
-	"m-banking/internal/migrations"
-	postgresql "m-banking/pkg/database/sql"
+	"m-banking/internal/adapters/pubsub"
+	"m-banking/migrations"
+	"m-banking/pkg/database/sql"
 	"m-banking/pkg/rabbitmq"
 	"m-banking/routes"
 	"net/http"
@@ -23,13 +23,13 @@ func main() {
 	}
 
 	// initialize DB connection
-	postgresql.DatabaseInit()
+	sql.DatabaseInit()
 
 	// initialize RabbitMQ connection
 	rabbitmq.RabbitMqInit()
 
 	//run RabbitMq consumer
-	infrastructure.RabbitMqConsumer()
+	pubsub.RabbitMqConsumer()
 
 	// initialize Mux Router connection
 	r := mux.NewRouter()
