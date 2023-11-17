@@ -8,6 +8,7 @@ Server started at [http://localhost:8080](http://localhost:8080).
 Install docker here [https://www.docker.com/get-started/](https://www.docker.com/get-started/)
 
 **features:**
+- create user
 - create customer & bank account numbers
 - deposit
 - cashout
