@@ -26,38 +26,44 @@ Install docker here [https://www.docker.com/get-started/](https://www.docker.com
 ## `Structure of the Project`
 ```md
 └── m-banking
-   ├── cmd
-   │   └── main.go
-   ├── pkg
-   ├── routes
-   ├── docker-compose.yml
-   ├── Dockerfile
-   ├── go.mod
-   ├── go.sum
-   ├── .env
-   └── internal
-       ├── adapters
-       │   │
-       │   ├── delivery/http
-       │   │   └── handler.go
-       │   │
-       │   └── repository
-       │       └── repository.go
-       │
-       ├── core
-       │   ├── domain/models
-       │   │   └── model.go
-       │   │   
-       │   ├── ports
-       │   │   └── ports.go
-       │   │   
-       │   └── usecase
-       │       └── usecase.go
-       └── dto
-       │ 
-       └── infrastructure
-       │ 
-       └── migrations
+    ├── internal
+    │   ├── adapter
+    │   │   ├── delivery
+    │   │   │   └── http
+    │   │   │       └── handlers.go
+    │   │   ├── pubsub
+    │   │   │   └── consumer.go
+    │   │   └── repository
+    │   │       └── repository.go
+    │   └── core
+    │       ├── domain
+    │       │   ├── dto
+    │       │   │   └── dto.go
+    │       │   └── models
+    │       │       └── models.go
+    │       ├── ports
+    │       │   └── ports.go
+    │       └── usecase
+    │           └── usecase.go
+    ├── migrations
+    │   └── migrations.go
+    ├── pkg
+    │   ├── bcrypt
+    │   │   └── bcrypt.go
+    │   ├── database
+    │   │   └── sql
+    │   │       └── postresql.go
+    │   ├── jwt
+    │   │   └── jwt.go
+    │   └── rabbitmq
+    │       └── rabbitmq.go
+    ├── routes
+    │   └── routes.go
+    ├── .env
+    ├── docker-compose.yml
+    ├── Dockerfile
+    ├── go.mod
+    └── go.sum
 ```
 
 ## Learn More
