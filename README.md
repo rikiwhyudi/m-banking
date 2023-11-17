@@ -65,6 +65,3 @@ Install docker here [https://www.docker.com/get-started/](https://www.docker.com
     ├── go.mod
     └── go.sum
 ```
-
-## Learn More
-Other reference: [https://github.com/LordMoMA/Hexagonal-Architecture](https://github.com/LordMoMA/Hexagonal-Architecture)
