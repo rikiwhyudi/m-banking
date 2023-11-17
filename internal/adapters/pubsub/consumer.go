@@ -1,11 +1,11 @@
-package infrastructure
+package pubsub
 
 import (
 	"encoding/json"
 	"fmt"
 	"m-banking/internal/adapters/repository"
+	"m-banking/internal/core/domain/dto"
 	"m-banking/internal/core/domain/models"
-	"m-banking/internal/dto"
 	"m-banking/pkg/database/sql"
 	"m-banking/pkg/rabbitmq"
 )

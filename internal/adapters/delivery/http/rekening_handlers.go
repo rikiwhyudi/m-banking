@@ -3,8 +3,8 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"m-banking/internal/core/domain/dto"
 	"m-banking/internal/core/ports"
-	"m-banking/internal/dto"
 	"net/http"
 	"strconv"
 	"sync"
